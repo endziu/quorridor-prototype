@@ -30,17 +30,15 @@ window.requestAnimFrame = (function(){
           arr.push({x: x1, y: y1});
         }
       }
-      //console.log(e.clientX, e.clientY);
       var goodClick = arr.filter(function(elem){
         return (((elem.x - e.clientX > -25 ) && (elem.x - e.clientX < -5)) &&
                 ((elem.y - e.clientY > -25) && (elem.y - e.clientY < -5)));
       }).length === 1;
-      
       var field = {
         x: Math.floor(e.clientX / 80),
         y: Math.floor(e.clientY / 80)
       };
-      self.debugDiv.children[0].innerHTML = "Click Position: " + field.x + ":" + field.y;
+      self.debugDiv.children[0].innerHTML = "Click Position: " + ( field.x +1 )+ ":" + (field.y+1);
       if (e.which === 1 && goodClick) {
         white.placeWall("horizontal",field)
       } else if (e.which === 3 && goodClick) {
@@ -61,7 +59,7 @@ window.requestAnimFrame = (function(){
     //OMG global vars ! run away!
     black = this.bodies[1]; //player 1
     white = this.bodies[2]; //player 2
-    
+
     black.move("forward")
     black.move("forward")
     black.move("forward")
@@ -69,7 +67,7 @@ window.requestAnimFrame = (function(){
     white.move("forward")
     white.move("forward")
     white.move("forward")
-    
+
     //main game loop
     var loop = function() {
       self.update();
@@ -254,14 +252,14 @@ window.requestAnimFrame = (function(){
           screen.fillText(dispX + "," + dispY, x+50, y+68);
         }
       }
-      
+
       for (var i = 0; i < this.size.x -1; i++) {
         for (var j = 0; j< this.size.y -1; j++) {
           var x1 = i * 80 + 72.5;
           var y1 = j * 80 + 72.5;
           screen.fillStyle = "rgba(125,180,125,0.85)";
           screen.fillRect(x1,y1,15,15);
-          
+
         }
       }
     }
@@ -308,7 +306,7 @@ window.requestAnimFrame = (function(){
             }
           } else if (dir === "left") {
             if (this.pos.x -1 === oponent.pos.x  && this.pos.y === oponent.pos.y){
-              this.pos.x = this.pos.x - 2;  
+              this.pos.x = this.pos.x - 2;
             } else {
               this.pos.x = this.pos.x - 1;
             }
@@ -321,7 +319,7 @@ window.requestAnimFrame = (function(){
           }
         } else if (this.team === "white"){
           var oponent = this.game.bodies[1];
-          
+
            if(dir === "forward") {
             if(this.pos.y - 1 === oponent.pos.y && this.pos.x === oponent.pos.x ){
               this.pos.y = this.pos.y - 2;
@@ -336,7 +334,7 @@ window.requestAnimFrame = (function(){
             }
            } else if (dir === "left") {
               if (this.pos.x - 1 === oponent.pos.x  && this.pos.y === oponent.pos.y){
-                this.pos.x = this.pos.x - 2;  
+                this.pos.x = this.pos.x - 2;
               } else {
                 this.pos.x = this.pos.x - 1;
               }
@@ -370,11 +368,11 @@ window.requestAnimFrame = (function(){
             this.game.addBody(new Wall(type,pos));
             this.game.walls = this.game.bodies.filter(this.game.isWall);
             this.numWalls -= 1;
-          }          
+          }
         }
-        
+
         //console.log('walls positions',this.game.walls.map(function(i){return i.getWall();}));
-        
+
         return true;
       } else {
         if(this.numWalls === 0){
