@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+  </head>
+  <body>
+    <canvas id="screen"></canvas>
+    <div>
+      <button id="btn_white_f" onclick="white.move('forward')"> white forward </button>
+      <button id="btn_white_b" onclick="white.move('back')"> white back</button>
+      <button id="btn_white_l" onclick="white.move('left')"> white left</button>
+      <button id="btn_white_r" onclick="white.move('right')"> white right</button>
+      <button id="btn_black_f" onclick="black.move('forward')"> black forward</button>
+      <button id="btn_black_b" onclick="black.move('back')"> black back</button>
+      <button id="btn_black_l" onclick="black.move('left')"> black left</button>
+      <button id="btn_black_r" onclick="black.move('right')"> black right</button>
+    </div>
+    <div id="debug">
+      <span id="mouse"></span>
+      </br>
+      <span id="click">Click Position: </span>
+      </br>
+      <span id="whiteWalls">white #walls: </span>
+      </br>
+      <span id="blackWalls">black #walls: </span>
+    </div>
+    <script type="text/javascript" src="index.js">
+    </script>
+  </body>
+</html>
