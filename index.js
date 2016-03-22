@@ -60,14 +60,6 @@ window.requestAnimFrame = (function(){
     black = this.bodies[1]; //player 1
     white = this.bodies[2]; //player 2
 
-    black.move("forward")
-    black.move("forward")
-    black.move("forward")
-    white.move("forward")
-    white.move("forward")
-    white.move("forward")
-    white.move("forward")
-
     //main game loop
     var loop = function() {
       self.update();
