@@ -72,7 +72,7 @@ window.requestAnimFrame = (function(){
 
   Game.prototype = {
     update: function() {
-      this.bodies.map(function (i) { i.update(); });
+      this.bodies.map(function (body) { body.update(); });
       this.debugDiv.children[2].innerHTML = "white walls: " + this.bodies[2].numWalls;
       this.debugDiv.children[4].innerHTML = "black walls: " + this.bodies[1].numWalls;
     },
