@@ -17,6 +17,7 @@ export class Renderer {
   private readonly ctx: CanvasRenderingContext2D;
   private state: GameState;
   private preview: WallPreview | null = null;
+  private hoveredMove: Cell | null = null;
   private rafHandle: number | null = null;
   private legalMoves: readonly Cell[] = [];
 
@@ -51,6 +52,10 @@ export class Renderer {
     this.preview = preview;
   }
 
+  setHoveredMove(cell: Cell | null): void {
+    this.hoveredMove = cell;
+  }
+
   get canvasElement(): HTMLCanvasElement {
     return this.canvas;
   }
@@ -65,7 +70,7 @@ export class Renderer {
   }
 
   private draw(): void {
-    drawBoard(this.ctx, this.state, this.legalMoves);
+    drawBoard(this.ctx, this.state, this.legalMoves, this.hoveredMove);
     drawWalls(this.ctx, this.state.walls, this.preview);
     drawPlayers(this.ctx, this.state);
     drawUI(this.ctx, this.state);

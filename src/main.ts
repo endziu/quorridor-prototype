@@ -59,6 +59,7 @@ attachMouse(
   getState,
   doDispatch,
   (preview) => renderer.setPreview(preview),
+  (cell) => renderer.setHoveredMove(cell),
   () => renderer.currentLegalMoves,
 );
 

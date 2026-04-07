@@ -5,6 +5,7 @@ import { pixelToCell, pixelToWallHit } from "../utils/coords.ts";
 type DispatchFn = (action: GameAction) => void;
 type GetStateFn = () => GameState;
 type SetPreviewFn = (preview: WallPreview | null) => void;
+type SetHoveredMoveFn = (cell: Cell | null) => void;
 type GetLegalMovesFn = () => readonly Cell[];
 
 function canvasCoords(
@@ -37,11 +38,13 @@ export function attachMouse(
   getState: GetStateFn,
   dispatch: DispatchFn,
   setPreview: SetPreviewFn,
+  setHoveredMove: SetHoveredMoveFn,
   getLegalMoves: GetLegalMovesFn,
 ): void {
   canvas.addEventListener("contextmenu", (e) => e.preventDefault());
   canvas.addEventListener("mouseleave", () => {
     setPreview(null);
+    setHoveredMove(null);
     canvas.style.cursor = "crosshair";
   });
 
@@ -56,8 +59,11 @@ export function attachMouse(
       const isLegal =
         cell !== null &&
         getLegalMoves().some((m) => m.x === cell.x && m.y === cell.y);
+
+      setHoveredMove(cell);
       canvas.style.cursor = isLegal ? "pointer" : "crosshair";
     } else {
+      setHoveredMove(null);
       canvas.style.cursor = "default";
     }
   });

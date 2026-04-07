@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { initialState } from "./GameState.ts";
 import { dispatch } from "./stateMachine.ts";
 import { getLegalMoves } from "../logic/movement.ts";
+import type { GameState } from "../types.ts";
 
 describe("stateMachine", () => {
   test("white moves first", () => {

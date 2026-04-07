@@ -6,6 +6,7 @@ export function drawBoard(
   ctx: CanvasRenderingContext2D,
   state: GameState,
   legalMoves: readonly Cell[],
+  hoveredMove: Cell | null = null,
 ): void {
   // Background
   ctx.fillStyle = COLORS.background;
@@ -25,10 +26,27 @@ export function drawBoard(
     for (let y = 0; y < GRID_SIZE; y++) {
       const { px, py } = cellOrigin({ x, y });
       const isLegal = legalMoves.some((c) => c.x === x && c.y === y);
-      ctx.fillStyle = isLegal ? COLORS.cellHighlight : COLORS.cell;
+      const isHovered = hoveredMove !== null && hoveredMove.x === x && hoveredMove.y === y;
+
+      if (isHovered) {
+        ctx.lineWidth = 2;
+        if (isLegal) {
+          ctx.fillStyle = COLORS.cellHover;
+          ctx.strokeStyle = COLORS.cellHoverStroke;
+        } else {
+          ctx.fillStyle = COLORS.cellHoverInvalid;
+          ctx.strokeStyle = COLORS.cellHoverInvalidStroke;
+        }
+      } else {
+        ctx.fillStyle = isLegal ? COLORS.cellHighlight : COLORS.cell;
+      }
+
       ctx.beginPath();
       ctx.roundRect(px, py, CELL_PX, CELL_PX, 4);
       ctx.fill();
+      if (isHovered) {
+        ctx.stroke();
+      }
     }
   }
 }
