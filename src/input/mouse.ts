@@ -52,16 +52,19 @@ export function attachMouse(
     const { px, py } = canvasCoords(canvas, e);
     const state = getState();
 
-    setPreview(resolvePreview(px, py, state));
+    const preview = resolvePreview(px, py, state);
+    setPreview(preview);
 
     if (state.phase.kind === "playing") {
       const cell = pixelToCell(px, py);
-      const isLegal =
+      const isLegalMove =
         cell !== null &&
         getLegalMoves().some((m) => m.x === cell.x && m.y === cell.y);
 
+      const isLegalWall = preview !== null && preview.valid;
+
       setHoveredMove(cell);
-      canvas.style.cursor = isLegal ? "pointer" : "crosshair";
+      canvas.style.cursor = (isLegalMove || isLegalWall) ? "pointer" : "crosshair";
     } else {
       setHoveredMove(null);
       canvas.style.cursor = "default";
