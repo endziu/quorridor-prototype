@@ -104,6 +104,10 @@ export function pixelToWallHit(
     orientation = inColGap ? "vertical" : "horizontal";
   }
 
+  // Wall positions must be 0–7 on both axes; the gap/cell checks above
+  // don't independently bound the cross-axis (e.g. inColGap doesn't bound row).
+  if (col > 7 || row > 7) return null;
+
   return {
     pos: { x: col, y: row },
     orientation,
