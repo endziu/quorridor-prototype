@@ -1,11 +1,11 @@
-import type { GameAction, GameState, WallPreview } from "../types.ts";
+import type { Cell, GameAction, GameState, WallPreview } from "../types.ts";
 import { isWallPlacementLegal, wallFromPosOrientation } from "../logic/walls.ts";
-import { getLegalMoves } from "../logic/movement.ts";
 import { pixelToCell, pixelToWallHit } from "../utils/coords.ts";
 
 type DispatchFn = (action: GameAction) => void;
 type GetStateFn = () => GameState;
 type SetPreviewFn = (preview: WallPreview | null) => void;
+type GetLegalMovesFn = () => readonly Cell[];
 
 function canvasCoords(
   canvas: HTMLCanvasElement,
@@ -37,6 +37,7 @@ export function attachMouse(
   getState: GetStateFn,
   dispatch: DispatchFn,
   setPreview: SetPreviewFn,
+  getLegalMoves: GetLegalMovesFn,
 ): void {
   canvas.addEventListener("contextmenu", (e) => e.preventDefault());
   canvas.addEventListener("mouseleave", () => {
@@ -54,9 +55,7 @@ export function attachMouse(
       const cell = pixelToCell(px, py);
       const isLegal =
         cell !== null &&
-        getLegalMoves(state, state.phase.activeTeam).some(
-          (m) => m.x === cell.x && m.y === cell.y,
-        );
+        getLegalMoves().some((m) => m.x === cell.x && m.y === cell.y);
       canvas.style.cursor = isLegal ? "pointer" : "crosshair";
     } else {
       canvas.style.cursor = "default";
@@ -84,7 +83,7 @@ export function attachMouse(
     // Pawn movement (cursor on a highlighted legal cell)
     const cell = pixelToCell(px, py);
     if (cell !== null) {
-      const legal = getLegalMoves(state, team);
+      const legal = getLegalMoves();
       if (legal.some((m) => m.x === cell.x && m.y === cell.y)) {
         dispatch({ type: "MOVE", team, target: cell });
       }

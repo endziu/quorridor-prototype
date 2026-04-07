@@ -50,9 +50,13 @@ function updatePanels(s: GameState): void {
 }
 
 attachKeyboard(reset);
-attachMouse(renderer.canvasElement, getState, doDispatch, (preview) => {
-  renderer.setPreview(preview);
-});
+attachMouse(
+  renderer.canvasElement,
+  getState,
+  doDispatch,
+  (preview) => renderer.setPreview(preview),
+  () => renderer.currentLegalMoves,
+);
 
 updatePanels(state);
 

@@ -6,12 +6,19 @@ import { drawPlayers } from "./drawPlayers.ts";
 import { drawUI } from "./drawUI.ts";
 import { getLegalMoves } from "../logic/movement.ts";
 
+function computeLegalMoves(state: GameState): readonly Cell[] {
+  return state.phase.kind === "playing"
+    ? getLegalMoves(state, state.phase.activeTeam)
+    : [];
+}
+
 export class Renderer {
   private readonly canvas: HTMLCanvasElement;
   private readonly ctx: CanvasRenderingContext2D;
   private state: GameState;
   private preview: WallPreview | null = null;
   private rafHandle: number | null = null;
+  private legalMoves: readonly Cell[] = [];
 
   constructor(canvasId: string, initialState: GameState) {
     const canvas = document.getElementById(canvasId);
@@ -27,11 +34,17 @@ export class Renderer {
     this.ctx = ctx;
 
     this.state = initialState;
+    this.legalMoves = computeLegalMoves(initialState);
     this.loop();
   }
 
   setState(state: GameState): void {
     this.state = state;
+    this.legalMoves = computeLegalMoves(state);
+  }
+
+  get currentLegalMoves(): readonly Cell[] {
+    return this.legalMoves;
   }
 
   setPreview(preview: WallPreview | null): void {
@@ -52,15 +65,9 @@ export class Renderer {
   }
 
   private draw(): void {
-    const state = this.state;
-    const legalMoves: readonly Cell[] =
-      state.phase.kind === "playing"
-        ? getLegalMoves(state, state.phase.activeTeam)
-        : [];
-
-    drawBoard(this.ctx, state, legalMoves);
-    drawWalls(this.ctx, state.walls, this.preview);
-    drawPlayers(this.ctx, state);
-    drawUI(this.ctx, state);
+    drawBoard(this.ctx, this.state, this.legalMoves);
+    drawWalls(this.ctx, this.state.walls, this.preview);
+    drawPlayers(this.ctx, this.state);
+    drawUI(this.ctx, this.state);
   }
 }
