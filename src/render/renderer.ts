@@ -11,6 +11,7 @@ export class Renderer {
   private readonly ctx: CanvasRenderingContext2D;
   private state: GameState;
   private preview: WallPreview | null = null;
+  private rafHandle: number | null = null;
 
   constructor(canvasId: string, initialState: GameState) {
     const canvas = document.getElementById(canvasId);
@@ -41,9 +42,13 @@ export class Renderer {
     return this.canvas;
   }
 
+  destroy(): void {
+    if (this.rafHandle !== null) cancelAnimationFrame(this.rafHandle);
+  }
+
   private loop(): void {
     this.draw();
-    requestAnimationFrame(() => this.loop());
+    this.rafHandle = requestAnimationFrame(() => this.loop());
   }
 
   private draw(): void {

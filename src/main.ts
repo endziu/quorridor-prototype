@@ -55,3 +55,7 @@ attachMouse(renderer.canvasElement, getState, doDispatch, (preview) => {
 });
 
 updatePanels(state);
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => renderer.destroy());
+}
