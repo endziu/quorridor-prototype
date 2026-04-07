@@ -26,6 +26,7 @@ export class Renderer {
   private rafHandle: number | null = null;
   private legalMoves: readonly Cell[] = [];
   private shortestPaths: Record<string, Cell[] | null> = { white: null, black: null };
+  private playerNames: { white: string; black: string } = { white: "White", black: "Black" };
 
   private pawnAnim: PawnAnim | null = null;
   private wallAnim: WallAnim | null = null;
@@ -49,7 +50,8 @@ export class Renderer {
     this.loop();
   }
 
-  setState(state: GameState): void {
+  setState(state: GameState, names?: { white: string; black: string }): void {
+    if (names) this.playerNames = names;
     const now = performance.now();
     const old = this.state;
 
@@ -150,6 +152,6 @@ export class Renderer {
     );
     drawWalls(this.ctx, this.state.walls, this.preview, this.wallAnim, now);
     drawPlayers(this.ctx, this.state, this.pawnAnim, this.thinkingTeam, now);
-    drawUI(this.ctx, this.state);
+    drawUI(this.ctx, this.state, this.playerNames);
   }
 }

@@ -59,16 +59,31 @@ describe("AI", () => {
 
   test("difficulty - easy/medium filters wall candidates", () => {
     const base = initialState();
-    // chooseAction requires it to be the AI team's turn (stateMachine rejects off-turn actions).
     const state: GameState = { ...base, phase: { kind: "playing", activeTeam: "black" } };
-    // In easy mode, AI should only consider walls that block the opponent's current shortest path.
-    // This is hard to test directly without exporting wallCandidates,
-    // but we can check if it at least doesn't crash and returns a valid action.
     const actionEasy = chooseAction(state, "black", "easy");
     expect(actionEasy).toBeDefined();
 
     const actionMedium = chooseAction(state, "black", "medium");
     expect(actionMedium).toBeDefined();
+  });
+
+  test("difficulty - easy is non-deterministic", () => {
+    const state: GameState = {
+      ...initialState(),
+      phase: { kind: "playing", activeTeam: "white" },
+    };
+    
+    // Call chooseAction many times for easy difficulty.
+    // Given the 40% blunder chance and random wall selection, we expect some variation.
+    const actions = new Set<string>();
+    for (let i = 0; i < 50; i++) {
+      const action = chooseAction(state, "white", "easy");
+      actions.add(JSON.stringify(action));
+    }
+    
+    // On a fresh board, there are 5 legal moves and many walls.
+    // With 40% random move chance and random walls, we should see more than 1 distinct action.
+    expect(actions.size).toBeGreaterThan(1);
   });
 
   test("chooseAction - prefers move over wall if scores are equal", () => {

@@ -39,10 +39,10 @@ export function drawPlayers(
       ctx.save();
       ctx.beginPath();
       ctx.arc(px, py, ringRadius, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(120, 120, 255, ${alpha})`;
+      ctx.strokeStyle = `rgba(79, 209, 197, ${alpha})`;
       ctx.lineWidth = 2.5;
       ctx.shadowBlur = 14;
-      ctx.shadowColor = "rgba(120, 120, 255, 0.6)";
+      ctx.shadowColor = "rgba(79, 209, 197, 0.6)";
       ctx.stroke();
       ctx.restore();
     }
@@ -50,7 +50,7 @@ export function drawPlayers(
     if (isActive) {
       ctx.save();
       ctx.shadowBlur = 25;
-      ctx.shadowColor = team === "white" ? "rgba(255,255,255,0.4)" : "rgba(120,120,255,0.3)";
+      ctx.shadowColor = "rgba(79, 209, 197, 0.6)";
       ctx.shadowOffsetY = 0;
     } else {
       ctx.save();

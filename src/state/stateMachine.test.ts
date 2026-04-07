@@ -6,19 +6,22 @@ import type { GameState } from "../types.ts";
 
 describe("stateMachine", () => {
   test("white moves first", () => {
-    const state = initialState();
-    expect(state.phase).toMatchObject({ kind: "playing", activeTeam: "white" });
+    const base = initialState();
+    const state = dispatch(base, { type: "START_GAME" });
+    expect(state.phase.kind).toBe("playing");
   });
 
   test("black cannot move on white's turn", () => {
-    const state = initialState();
+    const base = initialState();
+    const state = { ...base, phase: { kind: "playing" as const, activeTeam: "white" as const } };
     const moves = getLegalMoves(state, "black");
     const next = dispatch(state, { type: "MOVE", team: "black", target: moves[0]! });
     expect(next).toBe(state); // same reference = rejected
   });
 
   test("white move advances to black's turn", () => {
-    const state = initialState();
+    const base = initialState();
+    const state = { ...base, phase: { kind: "playing" as const, activeTeam: "white" as const } };
     const moves = getLegalMoves(state, "white");
     expect(moves.length).toBeGreaterThan(0);
     const next = dispatch(state, { type: "MOVE", team: "white", target: moves[0]! });
@@ -26,7 +29,8 @@ describe("stateMachine", () => {
   });
 
   test("placing a wall ends the turn", () => {
-    const state = initialState();
+    const base = initialState();
+    const state = { ...base, phase: { kind: "playing" as const, activeTeam: "white" as const } };
     const next = dispatch(state, {
       type: "PLACE_WALL",
       team: "white",
@@ -38,7 +42,8 @@ describe("stateMachine", () => {
   });
 
   test("illegal wall placement (out of bounds) is rejected", () => {
-    const state = initialState();
+    const base = initialState();
+    const state = { ...base, phase: { kind: "playing" as const, activeTeam: "white" as const } };
     const next = dispatch(state, {
       type: "PLACE_WALL",
       team: "white",
@@ -50,12 +55,13 @@ describe("stateMachine", () => {
   test("win: white reaches row 0", () => {
     // White at row 1, black moved out of the way to a corner
     const base = initialState();
-    const nearWin = {
+    const nearWin: GameState = {
       ...base,
       players: {
         white: { pos: { x: 4, y: 1 }, wallsLeft: 10 },
         black: { pos: { x: 0, y: 0 }, wallsLeft: 10 },
       },
+      phase: { kind: "playing", activeTeam: "white" },
     };
     const next = dispatch(nearWin, {
       type: "MOVE",
@@ -67,7 +73,7 @@ describe("stateMachine", () => {
 
   test("win: black reaches row 8", () => {
     const base = initialState();
-    const nearWin = {
+    const nearWin: GameState = {
       ...base,
       players: {
         white: { pos: { x: 0, y: 8 }, wallsLeft: 10 },
@@ -97,7 +103,8 @@ describe("stateMachine", () => {
       players: {
         ...base.players,
         white: { ...base.players.white, wallsLeft: 0 }
-      }
+      },
+      phase: { kind: "playing", activeTeam: "white" },
     };
     const next = dispatch(poorState, {
       type: "PLACE_WALL",
@@ -115,7 +122,8 @@ describe("stateMachine", () => {
   });
 
   test("rejects action from wrong team", () => {
-    const state = initialState(); // White's turn
+    const base = initialState();
+    const state: GameState = { ...base, phase: { kind: "playing", activeTeam: "white" } };
     const next = dispatch(state, { type: "MOVE", team: "black", target: { x: 4, y: 1 } });
     expect(next).toBe(state);
   });

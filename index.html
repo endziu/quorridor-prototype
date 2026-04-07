@@ -13,7 +13,7 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        font-family: 'Courier New', monospace;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
       }
 
       .game-wrapper {
@@ -32,7 +32,7 @@
         background: #6d441e;
         border: 1px solid #7d4e22;
         opacity: 0.7;
-        transition: background 0.25s, border-color 0.25s, opacity 0.25s;
+        transition: background 0.25s, border-color 0.25s, opacity 0.25s, transform 0.25s, box-shadow 0.25s;
       }
 
       .player-panel.black-panel {
@@ -49,6 +49,9 @@
         opacity: 1;
         background: #7d4e22;
         border-color: #8d5e32;
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        z-index: 10;
       }
 
       /* ── Turn arrow ────────────────────────────────────────── */
@@ -71,13 +74,13 @@
       }
 
       .pawn-dot.white {
-        background: #fdf8f0;
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+        background: #d2a679;
+        box-shadow: 0 0 8px rgba(210, 166, 121, 0.4);
       }
 
       .pawn-dot.black {
-        background: #26211c;
-        border: 2px solid #3c2a1a;
+        background: #4a3018;
+        border: 2px solid #2d1d0e;
       }
 
       /* ── Player name ───────────────────────────────────────── */
@@ -155,28 +158,78 @@
         border-radius: 4px;
         padding: 4px 12px;
         cursor: pointer;
-        transition: color 0.15s, border-color 0.15s, background 0.15s;
+        transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.15s;
       }
 
       .difficulty-btn:hover {
         color: #d4a870;
         border-color: #8d5e32;
+        transform: translateY(-1px);
       }
 
       .difficulty-btn.active {
-        color: #fdf8f0;
-        border-color: #c8864a;
-        background: #6d441e;
+        color: #4fd1c5;
+        border-color: #4fd1c5;
+        background: rgba(79, 209, 197, 0.1);
       }
 
       /* ── Canvas ────────────────────────────────────────────── */
+      .canvas-container {
+        position: relative;
+        margin: 10px 0;
+      }
+
       canvas {
         display: block;
         cursor: crosshair;
         background: #3a2510; /* Dark walnut base */
         border-radius: 12px;
         box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.3);
-        margin: 10px 0;
+      }
+
+      #start-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: rgba(45, 25, 10, 0.4);
+        border-radius: 12px;
+        z-index: 20;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+      }
+
+      #start-overlay.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      #randomize-btn {
+        background: #fdf8f0;
+        color: #3c2a1a;
+        border: 1px solid #dcc9b0;
+        border-radius: 8px;
+        padding: 16px 32px;
+        font-family: inherit;
+        font-size: 16px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      }
+
+      #randomize-btn:hover {
+        background: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+      }
+
+      #randomize-btn:active {
+        transform: translateY(1px);
       }
 
       /* ── Rules modal ───────────────────────────────────────── */
@@ -188,9 +241,15 @@
         justify-content: center;
         align-items: center;
         z-index: 100;
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s, visibility 0.3s;
       }
 
-      #rules-backdrop.hidden { display: none; }
+      #rules-backdrop.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
 
       #rules-modal {
         background: #6d441e;
@@ -200,6 +259,11 @@
         max-width: 520px;
         width: 90vw;
         color: #f5e6d3;
+        transform: translateY(0);
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      #rules-backdrop.hidden #rules-modal {
+        transform: translateY(20px);
       }
 
       #rules-modal h1 {
@@ -294,10 +358,13 @@
         font-weight: bold;
         letter-spacing: 1px;
         cursor: pointer;
-        transition: background 0.15s;
+        transition: background 0.15s, transform 0.15s;
       }
 
-      #rules-play-btn:hover { background: #ffffff; }
+      #rules-play-btn:hover {
+        background: #ffffff;
+        transform: translateY(-1px) scale(1.02);
+      }
 
       .info-btn {
         background: none;
@@ -348,6 +415,7 @@
           <div class="rules-key"><span>Click</span> Move to highlighted cell</div>
           <div class="rules-key"><span>Click gap</span> Place wall</div>
           <div class="rules-key"><span>R</span> Restart game</div>
+          <div class="rules-key"><span>D</span> Toggle debug mode</div>
         </div>
 
         <div class="rules-footer">
@@ -367,11 +435,21 @@
         <span class="player-name">BLACK</span>
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-black"></div>
-        <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
+        <div class="difficulty-row">
+          <span class="difficulty-label">AI</span>
+          <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+          <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+          <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
         <button class="info-btn" aria-label="Show rules">🛈</button>
       </div>
 
-      <canvas id="screen"></canvas>
+      <div class="canvas-container">
+        <div id="start-overlay">
+          <button id="randomize-btn">Randomly select a player</button>
+        </div>
+        <canvas id="screen"></canvas>
+      </div>
 
       <div class="player-panel white-panel" id="panel-white">
         <span class="turn-arrow">▶</span>
@@ -379,12 +457,7 @@
         <span class="player-name">WHITE</span>
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-white"></div>
-        <div class="difficulty-row">
-          <span class="difficulty-label">AI</span>
-          <button class="difficulty-btn" data-difficulty="easy">Easy</button>
-          <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-          <button class="difficulty-btn" data-difficulty="hard">Hard</button>
-        </div>
+        <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
         <button class="info-btn" aria-label="Show rules">🛈</button>
       </div>
     </div>

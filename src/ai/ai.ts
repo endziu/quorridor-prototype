@@ -24,19 +24,6 @@ function evaluate(state: GameState, aiTeam: Team): number {
   if (oppPath === null) return Infinity;
   return oppPath.length - myPath.length;
 }
-
-/**
- * Returns true if the wall blocks at least one edge traversed on `path`.
- * Used for easy difficulty — only walls that directly cut the opponent's route.
- */
-function wallBlocksPathEdge(wall: Wall, path: Cell[]): boolean {
-  const tempWalls = [wall];
-  for (let i = 0; i < path.length - 1; i++) {
-    if (isEdgeBlocked(tempWalls, path[i]!, path[i + 1]!)) return true;
-  }
-  return false;
-}
-
 /**
  * Returns true if any of the four cells the wall anchor covers is on the opponent's path.
  * Used for medium difficulty — walls in the vicinity of the opponent's route.
@@ -69,15 +56,17 @@ function wallCandidates(state: GameState, aiTeam: Team, difficulty: Difficulty):
 
   if (difficulty === "hard") return all;
 
+  if (difficulty === "easy") {
+    // Easy mode: Consider only a random subset of possible walls (approx 15%).
+    // This makes it much less likely to find an optimal blocking wall.
+    return all.filter(() => Math.random() < 0.15);
+  }
+
   const opp = opponent(aiTeam);
   const oppPath = getShortestPath(state.walls, state.players[opp].pos, opp);
   if (!oppPath) return all;
 
-  if (difficulty === "easy") {
-    return all.filter((w) => wallBlocksPathEdge(w, oppPath));
-  }
-
-  // medium
+  // medium: walls in the vicinity of the opponent's route.
   const pathKeys = new Set(oppPath.map((c) => `${c.x},${c.y}`));
   return all.filter((w) => wallTouchesPathCell(w, pathKeys));
 }
@@ -88,6 +77,40 @@ function wallCandidates(state: GameState, aiTeam: Team, difficulty: Difficulty):
  * Prefers pawn moves over wall placements when scores are equal (preserves wall budget).
  */
 export function chooseAction(state: GameState, team: Team, difficulty: Difficulty): GameAction {
+  // Easy difficulty blunder: 40% chance to just pick a random move or a random wall
+  if (difficulty === "easy" && Math.random() < 0.4) {
+    const moves = getLegalMoves(state, team);
+    const wallsLeft = state.players[team].wallsLeft;
+    
+    // 80% of blunders are moves, 20% are walls (if available)
+    if (Math.random() < 0.8 || wallsLeft === 0) {
+      if (moves.length > 0) {
+        return { type: "MOVE", team, target: moves[Math.floor(Math.random() * moves.length)]! };
+      }
+    } else {
+      // Try to find any legal wall from a random selection
+      const allWalls: Wall[] = [];
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+          for (const orientation of ORIENTATIONS) {
+            allWalls.push({ pos: { x, y }, orientation });
+          }
+        }
+      }
+      // Shuffle a bit or just pick randomly
+      for (let i = 0; i < 20; i++) {
+        const wall = allWalls[Math.floor(Math.random() * allWalls.length)]!;
+        if (isWallPlacementLegal(state, team, wall)) {
+          return { type: "PLACE_WALL", team, wall };
+        }
+      }
+      // Fallback to random move if no legal wall found quickly
+      if (moves.length > 0) {
+        return { type: "MOVE", team, target: moves[Math.floor(Math.random() * moves.length)]! };
+      }
+    }
+  }
+
   let bestAction: GameAction | null = null;
   let bestScore = -Infinity;
   let bestIsWall = false;

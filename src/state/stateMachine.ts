@@ -17,8 +17,12 @@ function flipTeam(team: Team): Team {
  * Returns the same state reference if the action is illegal.
  */
 export function dispatch(state: GameState, action: GameAction): GameState {
+  if (action.type === "START_GAME" && state.phase.kind === "starting") {
+    return { ...state, phase: { kind: "playing", activeTeam: state.phase.startingTeam } };
+  }
+
   if (state.phase.kind !== "playing") return state;
-  if (action.team !== state.phase.activeTeam) return state;
+  if (action.type !== "START_GAME" && action.team !== state.phase.activeTeam) return state;
 
   switch (action.type) {
     case "MOVE": {

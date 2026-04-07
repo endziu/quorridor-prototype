@@ -8,6 +8,6 @@ export function initialState(): GameState {
       black: { pos: { x: 4, y: 0 }, wallsLeft: WALLS_PER_PLAYER },
     },
     walls: [],
-    phase: { kind: "playing", activeTeam: "white" },
+    phase: { kind: "starting", startingTeam: Math.random() < 0.5 ? "white" : "black" },
   };
 }

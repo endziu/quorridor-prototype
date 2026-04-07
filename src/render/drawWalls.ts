@@ -39,7 +39,7 @@ function drawPlacedWall(ctx: CanvasRenderingContext2D, wall: PlacedWall, opacity
 
 function drawPreviewWall(ctx: CanvasRenderingContext2D, preview: WallPreview): void {
   const baseColor = preview.valid
-    ? "0, 255, 170"
+    ? "79, 209, 197"
     : "255, 80, 80";
 
   wallPath(ctx, { pos: preview.pos, orientation: preview.orientation });

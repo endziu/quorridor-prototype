@@ -1,13 +1,13 @@
 import { CANVAS_PX, COLORS } from "../constants.ts";
 import type { GameState } from "../types.ts";
 
-export function drawUI(ctx: CanvasRenderingContext2D, state: GameState): void {
+export function drawUI(ctx: CanvasRenderingContext2D, state: GameState, names: { white: string; black: string }): void {
   if (state.phase.kind === "won") {
-    drawWinOverlay(ctx, state.phase.winner);
+    drawWinOverlay(ctx, state.phase.winner, names);
   }
 }
 
-function drawWinOverlay(ctx: CanvasRenderingContext2D, winner: "white" | "black"): void {
+function drawWinOverlay(ctx: CanvasRenderingContext2D, winner: "white" | "black", names: { white: string; black: string }): void {
   ctx.fillStyle = COLORS.winOverlay;
   ctx.fillRect(0, 0, CANVAS_PX, CANVAS_PX);
 
@@ -15,8 +15,9 @@ function drawWinOverlay(ctx: CanvasRenderingContext2D, winner: "white" | "black"
   ctx.textBaseline = "middle";
 
   ctx.font = "bold 56px 'Courier New', monospace";
-  ctx.fillStyle = winner === "white" ? COLORS.white : "#666677";
-  ctx.fillText(winner.toUpperCase(), CANVAS_PX / 2, CANVAS_PX / 2 - 22);
+  ctx.fillStyle = winner === "white" ? COLORS.white : COLORS.black;
+  const winName = (winner === "white" ? names.white : names.black).toUpperCase();
+  ctx.fillText(winName, CANVAS_PX / 2, CANVAS_PX / 2 - 22);
 
   ctx.font = "22px 'Courier New', monospace";
   ctx.fillStyle = COLORS.text;

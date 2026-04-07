@@ -34,6 +34,7 @@ export interface PlayerState {
 }
 
 export type GamePhase =
+  | { readonly kind: "starting"; readonly startingTeam: Team }
   | { readonly kind: "playing"; readonly activeTeam: Team }
   | { readonly kind: "won"; readonly winner: Team };
 
@@ -44,6 +45,7 @@ export interface GameState {
 }
 
 export type GameAction =
+  | { readonly type: "START_GAME" }
   | { readonly type: "MOVE"; readonly team: Team; readonly target: Cell }
   | { readonly type: "PLACE_WALL"; readonly team: Team; readonly wall: Wall };
 

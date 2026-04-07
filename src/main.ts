@@ -1,3 +1,4 @@
+import { FAMOUS_DUOS } from "./constants.ts";
 import { initialState } from "./state/GameState.ts";
 import { dispatch } from "./state/stateMachine.ts";
 import { Renderer } from "./render/renderer.ts";
@@ -11,9 +12,11 @@ import type { Difficulty } from "./ai/ai.ts";
 /** Set to a Team to make that side AI-controlled, or null for human vs human. */
 const AI_TEAM: Team | null = "black";
 let aiDifficulty: Difficulty = "medium";
+let currentDuo = FAMOUS_DUOS[Math.floor(Math.random() * FAMOUS_DUOS.length)]!;
 
 let state: GameState = initialState();
 let aiPendingTimer: ReturnType<typeof setTimeout> | null = null;
+let animationInterval: ReturnType<typeof setInterval> | null = null;
 
 const renderer = new Renderer("screen", state);
 
@@ -45,11 +48,44 @@ function doDispatch(action: GameAction): void {
   const next = dispatch(state, action);
   if (next === state) return;
   state = next;
-  renderer.setState(state);
+  renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
   updatePanels(state);
   if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
     scheduleAiMove();
   }
+}
+
+function playStartAnimation(): void {
+  if (state.phase.kind !== "starting") return;
+
+  if (animationInterval !== null) {
+    clearInterval(animationInterval);
+    animationInterval = null;
+  }
+
+  const overlay = document.getElementById("start-overlay");
+  if (overlay) overlay.classList.remove("visible");
+
+  const whitePanel = document.getElementById("panel-white");
+  const blackPanel = document.getElementById("panel-black");
+  let toggle = false;
+  let ticks = 0;
+  const maxTicks = 12;
+
+  animationInterval = setInterval(() => {
+    toggle = !toggle;
+    if (whitePanel) whitePanel.classList.toggle("active", toggle);
+    if (blackPanel) blackPanel.classList.toggle("active", !toggle);
+    
+    ticks++;
+    if (ticks >= maxTicks) {
+      if (animationInterval) {
+        clearInterval(animationInterval);
+        animationInterval = null;
+      }
+      doDispatch({ type: "START_GAME" });
+    }
+  }, 120);
 }
 
 function reset(): void {
@@ -58,17 +94,29 @@ function reset(): void {
     aiPendingTimer = null;
     renderer.setAiThinking(null);
   }
+  if (animationInterval !== null) {
+    clearInterval(animationInterval);
+    animationInterval = null;
+  }
   state = initialState();
-  renderer.setState(state);
+  currentDuo = FAMOUS_DUOS[Math.floor(Math.random() * FAMOUS_DUOS.length)]!;
+  renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
   renderer.resetAnimations();
   renderer.setPreview(null);
   updatePanels(state);
-  if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
-    scheduleAiMove();
-  }
 }
 
 function updatePanels(s: GameState): void {
+  const whiteName = document.querySelector("#panel-white .player-name");
+  const blackName = document.querySelector("#panel-black .player-name");
+  if (whiteName) whiteName.textContent = currentDuo[0].toUpperCase();
+  if (blackName) blackName.textContent = currentDuo[1].toUpperCase();
+
+  const overlay = document.getElementById("start-overlay");
+  if (overlay) {
+    overlay.classList.toggle("visible", s.phase.kind === "starting");
+  }
+
   const activeTeam = s.phase.kind === "playing" ? s.phase.activeTeam : null;
 
   for (const team of ["white", "black"] as const) {
@@ -76,7 +124,11 @@ function updatePanels(s: GameState): void {
     const pips = document.getElementById(`pips-${team}`);
 
     if (panel) {
-      panel.classList.toggle("active", team === activeTeam);
+      if (s.phase.kind !== "starting") {
+        panel.classList.toggle("active", team === activeTeam);
+      } else if (animationInterval === null) {
+        panel.classList.remove("active");
+      }
     }
 
     if (pips) {
@@ -112,6 +164,13 @@ for (const btn of difficultyButtons) {
   });
 }
 
+const randomizeBtn = document.getElementById("randomize-btn");
+if (randomizeBtn) {
+  randomizeBtn.addEventListener("click", () => {
+    playStartAnimation();
+  });
+}
+
 function toggleDebug(): void {
   renderer.toggleDebugPaths();
 }
@@ -134,5 +193,8 @@ if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     renderer.destroy();
     detachKeyboard();
+    if (animationInterval !== null) {
+      clearInterval(animationInterval);
+    }
   });
 }
