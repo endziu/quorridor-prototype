@@ -5,6 +5,7 @@ import { drawWalls } from "./drawWalls.ts";
 import { drawPlayers } from "./drawPlayers.ts";
 import { drawUI } from "./drawUI.ts";
 import { getLegalMoves } from "../logic/movement.ts";
+import { getShortestPath } from "../logic/pathfinding.ts";
 
 function computeLegalMoves(state: GameState): readonly Cell[] {
   return state.phase.kind === "playing"
@@ -18,8 +19,10 @@ export class Renderer {
   private state: GameState;
   private preview: WallPreview | null = null;
   private hoveredMove: Cell | null = null;
+  private debugPaths: boolean = false;
   private rafHandle: number | null = null;
   private legalMoves: readonly Cell[] = [];
+  private shortestPaths: Record<string, Cell[] | null> = { white: null, black: null };
 
   constructor(canvasId: string, initialState: GameState) {
     const canvas = document.getElementById(canvasId);
@@ -35,13 +38,21 @@ export class Renderer {
     this.ctx = ctx;
 
     this.state = initialState;
-    this.legalMoves = computeLegalMoves(initialState);
+    this.updateComputed(initialState);
     this.loop();
   }
 
   setState(state: GameState): void {
     this.state = state;
+    this.updateComputed(state);
+  }
+
+  private updateComputed(state: GameState): void {
     this.legalMoves = computeLegalMoves(state);
+    this.shortestPaths = {
+      white: getShortestPath(state.walls, state.players.white.pos, "white"),
+      black: getShortestPath(state.walls, state.players.black.pos, "black"),
+    };
   }
 
   get currentLegalMoves(): readonly Cell[] {
@@ -54,6 +65,10 @@ export class Renderer {
 
   setHoveredMove(cell: Cell | null): void {
     this.hoveredMove = cell;
+  }
+
+  toggleDebugPaths(): void {
+    this.debugPaths = !this.debugPaths;
   }
 
   get canvasElement(): HTMLCanvasElement {
@@ -70,7 +85,13 @@ export class Renderer {
   }
 
   private draw(): void {
-    drawBoard(this.ctx, this.state, this.legalMoves, this.hoveredMove);
+    drawBoard(
+      this.ctx,
+      this.state,
+      this.legalMoves,
+      this.hoveredMove,
+      this.debugPaths ? this.shortestPaths : undefined
+    );
     drawWalls(this.ctx, this.state.walls, this.preview);
     drawPlayers(this.ctx, this.state);
     drawUI(this.ctx, this.state);

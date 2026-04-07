@@ -53,7 +53,7 @@ function updatePanels(s: GameState): void {
   }
 }
 
-attachKeyboard(reset);
+attachKeyboard(reset, () => renderer.toggleDebugPaths());
 attachMouse(
   renderer.canvasElement,
   getState,

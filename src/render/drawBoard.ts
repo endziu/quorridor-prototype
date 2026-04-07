@@ -1,12 +1,13 @@
 import { BOARD_PADDING, CANVAS_PX, CELL_PX, CELL_STRIDE, COLORS, GAP_PX, GRID_SIZE } from "../constants.ts";
 import type { Cell, GameState } from "../types.ts";
-import { cellOrigin } from "../utils/coords.ts";
+import { cellOrigin, cellCenter } from "../utils/coords.ts";
 
 export function drawBoard(
   ctx: CanvasRenderingContext2D,
   state: GameState,
   legalMoves: readonly Cell[],
   hoveredMove: Cell | null = null,
+  shortestPaths?: Record<string, Cell[] | null>,
 ): void {
   // Background (the dark wooden base plate)
   ctx.fillStyle = COLORS.wallSlot;
@@ -69,6 +70,53 @@ export function drawBoard(
           // Subtle inner glow for legal move hint
           ctx.strokeStyle = "rgba(255,255,255,0.06)";
           ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+
+  // Draw debug paths
+  if (shortestPaths) {
+    for (const team of ["white", "black"] as const) {
+      const path = shortestPaths[team];
+      if (!path || path.length < 2) continue;
+
+      ctx.save();
+      // Use team colors but with transparency
+      ctx.strokeStyle = team === "white" ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.5)";
+      ctx.setLineDash([8, 4]);
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      const first = path[0];
+      if (first) {
+        const start = cellCenter(first);
+        ctx.moveTo(start.px, start.py);
+
+        for (let i = 1; i < path.length; i++) {
+          const p = path[i];
+          if (p) {
+            const pos = cellCenter(p);
+            ctx.lineTo(pos.px, pos.py);
+          }
+        }
+        ctx.stroke();
+
+        // Draw path length text
+        const steps = path.length - 1;
+        const textPos = cellCenter(first);
+        ctx.font = "bold 16px 'Courier New', monospace";
+        ctx.fillStyle = team === "white" ? "#ffffff" : "#000000";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        
+        // Background for the number to make it readable
+        ctx.beginPath();
+        ctx.arc(textPos.px + 20, textPos.py - 20, 10, 0, Math.PI * 2);
+        ctx.fillStyle = team === "white" ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.6)";
+        ctx.fill();
+        
+        ctx.fillStyle = team === "white" ? "#ffffff" : "#000000";
+        ctx.fillText(steps.toString(), textPos.px + 20, textPos.py - 20);
       }
       ctx.restore();
     }

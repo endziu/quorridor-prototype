@@ -35,6 +35,52 @@ export function playerHasPath(
   return false;
 }
 
+/**
+ * BFS: returns the shortest path (array of cells) to the goal row, or null if blocked.
+ */
+export function getShortestPath(
+  walls: readonly Wall[],
+  start: Cell,
+  team: Team,
+): Cell[] | null {
+  const goalY = team === "white" ? 0 : GRID_SIZE - 1;
+
+  const visited = new Map<number, Cell | null>();
+  const key = (c: Cell) => c.y * GRID_SIZE + c.x;
+
+  const queue: Cell[] = [start];
+  visited.set(key(start), null);
+
+  let endCell: Cell | null = null;
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    if (current.y === goalY) {
+      endCell = current;
+      break;
+    }
+
+    for (const next of adjacentCells(current)) {
+      const k = key(next);
+      if (!visited.has(k) && !isEdgeBlocked(walls, current, next)) {
+        visited.set(k, current);
+        queue.push(next);
+      }
+    }
+  }
+
+  if (!endCell) return null;
+
+  // Reconstruct path
+  const path: Cell[] = [];
+  let curr: Cell | null = endCell;
+  while (curr) {
+    path.push(curr);
+    curr = visited.get(key(curr))!;
+  }
+  return path.reverse();
+}
+
 function adjacentCells(c: Cell): Cell[] {
   const result: Cell[] = [];
   if (c.y > 0) result.push({ x: c.x, y: c.y - 1 });
