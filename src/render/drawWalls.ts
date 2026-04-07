@@ -23,14 +23,14 @@ function drawPlacedWall(ctx: CanvasRenderingContext2D, wall: PlacedWall): void {
 
 function drawPreviewWall(ctx: CanvasRenderingContext2D, preview: WallPreview): void {
   const baseColor = preview.valid
-    ? "80, 210, 120"
-    : "220, 70, 70";
+    ? "0, 255, 170"
+    : "255, 80, 80";
 
   wallPath(ctx, { pos: preview.pos, orientation: preview.orientation });
-  ctx.fillStyle = `rgba(${baseColor}, 0.12)`;
+  ctx.fillStyle = `rgba(${baseColor}, 0.15)`;
   ctx.fill();
-  ctx.strokeStyle = `rgba(${baseColor}, 0.55)`;
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = `rgba(${baseColor}, 0.65)`;
+  ctx.lineWidth = 1.8;
   ctx.stroke();
   ctx.lineWidth = 1;
 }

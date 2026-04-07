@@ -13,8 +13,8 @@ export function drawPlayers(ctx: CanvasRenderingContext2D, state: GameState): vo
 
     if (isActive) {
       ctx.save();
-      ctx.shadowBlur = 18;
-      ctx.shadowColor = team === "white" ? "rgba(220,220,255,0.55)" : "rgba(80,80,120,0.6)";
+      ctx.shadowBlur = 22;
+      ctx.shadowColor = team === "white" ? "rgba(255,255,255,0.7)" : "rgba(100,100,255,0.5)";
     }
 
     ctx.beginPath();

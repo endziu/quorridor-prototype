@@ -8,7 +8,7 @@
       * { box-sizing: border-box; margin: 0; padding: 0; }
 
       body {
-        background: #0d0d1a;
+        background: #1a1a2e;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -29,9 +29,9 @@
         align-items: center;
         gap: 10px;
         padding: 10px 16px;
-        background: #161628;
-        border: 1px solid #242440;
-        opacity: 0.45;
+        background: #1f1f3a;
+        border: 1px solid #2e2e50;
+        opacity: 0.6;
         transition: background 0.25s, border-color 0.25s, opacity 0.25s;
       }
 
@@ -47,13 +47,14 @@
 
       .player-panel.active {
         opacity: 1;
-        background: #1a1a30;
+        background: #2a2a4a;
+        border-color: #3e3e6a;
       }
 
       /* ── Turn arrow ────────────────────────────────────────── */
       .turn-arrow {
         font-size: 16px;
-        color: #5ba3ff;
+        color: #00d4ff;
         width: 18px;
         flex-shrink: 0;
         visibility: hidden;
@@ -70,13 +71,13 @@
       }
 
       .pawn-dot.white {
-        background: #f0f0f0;
-        box-shadow: 0 0 6px rgba(240, 240, 240, 0.35);
+        background: #ffffff;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
       }
 
       .pawn-dot.black {
-        background: #1e1e1e;
-        border: 2px solid #555;
+        background: #111111;
+        border: 2px solid #444444;
       }
 
       /* ── Player name ───────────────────────────────────────── */
@@ -84,14 +85,14 @@
         font-size: 16px;
         font-weight: bold;
         letter-spacing: 2px;
-        color: #c8c8d8;
+        color: #ffffff;
         min-width: 58px;
       }
 
       /* ── Walls ─────────────────────────────────────────────── */
       .walls-label {
         font-size: 13px;
-        color: #44445a;
+        color: #8a8aa8;
         letter-spacing: 1px;
         text-transform: uppercase;
         margin-left: 4px;
@@ -107,12 +108,12 @@
         width: 7px;
         height: 22px;
         border-radius: 2px;
-        background: #c97b3a;
+        background: #e67e22;
         transition: opacity 0.2s, background 0.2s;
       }
 
       .pip.used {
-        background: #2a2a40;
+        background: #3a3a5a;
         opacity: 0.6;
       }
 
@@ -120,23 +121,24 @@
       .controls-hint {
         margin-left: auto;
         font-size: 13px;
-        color: #33334a;
+        color: #6a6a8a;
         letter-spacing: 0.5px;
       }
 
-      .player-panel.active .controls-hint { color: #55556e; }
+      .player-panel.active .controls-hint { color: #a0a0c0; }
 
       /* ── Canvas ────────────────────────────────────────────── */
       canvas {
         display: block;
         cursor: crosshair;
+        background: #1a1a2e;
       }
 
       /* ── Rules modal ───────────────────────────────────────── */
       #rules-backdrop {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.82);
+        background: rgba(0, 0, 0, 0.85);
         display: flex;
         justify-content: center;
         align-items: center;
@@ -146,8 +148,8 @@
       #rules-backdrop.hidden { display: none; }
 
       #rules-modal {
-        background: #161628;
-        border: 1px solid #2e2e50;
+        background: #1f1f3a;
+        border: 1px solid #3e3e6a;
         border-radius: 10px;
         padding: 32px 36px;
         max-width: 520px;
@@ -159,21 +161,21 @@
         font-size: 22px;
         letter-spacing: 3px;
         margin-bottom: 20px;
-        color: #e0e0f0;
+        color: #ffffff;
       }
 
       #rules-modal h2 {
         font-size: 11px;
         letter-spacing: 2px;
         text-transform: uppercase;
-        color: #5ba3ff;
+        color: #00d4ff;
         margin: 18px 0 8px;
       }
 
       #rules-modal p, #rules-modal li {
         font-size: 13px;
         line-height: 1.7;
-        color: #9090a8;
+        color: #a0a0c0;
       }
 
       #rules-modal ul {
@@ -190,21 +192,21 @@
       }
 
       .rules-key {
-        background: #0d0d1a;
-        border: 1px solid #2e2e50;
+        background: #1a1a2e;
+        border: 1px solid #3e3e6a;
         border-radius: 6px;
         padding: 8px 12px;
         font-size: 12px;
-        color: #9090a8;
+        color: #a0a0c0;
       }
 
       .rules-key span {
         display: inline-block;
-        background: #252545;
+        background: #2a2a4a;
         border-radius: 3px;
         padding: 1px 6px;
         margin-right: 6px;
-        color: #c8c8d8;
+        color: #ffffff;
         font-size: 11px;
       }
 
@@ -214,7 +216,7 @@
         justify-content: space-between;
         margin-top: 28px;
         padding-top: 20px;
-        border-top: 1px solid #22223a;
+        border-top: 1px solid #2e2e50;
       }
 
       .rules-footer label {
@@ -222,20 +224,20 @@
         align-items: center;
         gap: 8px;
         font-size: 12px;
-        color: #55556e;
+        color: #6a6a8a;
         cursor: pointer;
         user-select: none;
       }
 
       .rules-footer input[type="checkbox"] {
-        accent-color: #5ba3ff;
+        accent-color: #00d4ff;
         width: 14px;
         height: 14px;
         cursor: pointer;
       }
 
       #rules-play-btn {
-        background: #5ba3ff;
+        background: #00d4ff;
         color: #0d0d1a;
         border: none;
         border-radius: 6px;
@@ -248,7 +250,7 @@
         transition: background 0.15s;
       }
 
-      #rules-play-btn:hover { background: #7bb8ff; }
+      #rules-play-btn:hover { background: #5ba3ff; }
     </style>
   </head>
   <body>
