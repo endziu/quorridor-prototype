@@ -21,14 +21,24 @@ function getState(): GameState {
   return state;
 }
 
+/** 97% of moves: 400–1000 ms (skewed toward lower end). 3%: 1000–2000 ms. */
+function aiThinkDelay(): number {
+  const r = Math.random();
+  return r < 0.9
+    ? 400 + (r / 0.9) ** 2 * 600
+    : 1000 + ((r - 0.9) / 0.1) * 1000;
+}
+
 function scheduleAiMove(): void {
   if (aiPendingTimer !== null) return;
+  renderer.setAiThinking(AI_TEAM);
   aiPendingTimer = setTimeout(() => {
     aiPendingTimer = null;
+    renderer.setAiThinking(null);
     if (state.phase.kind !== "playing") return;
     if (state.phase.activeTeam !== AI_TEAM) return;
     doDispatch(chooseAction(state, AI_TEAM, aiDifficulty));
-  }, 400);
+  }, aiThinkDelay());
 }
 
 function doDispatch(action: GameAction): void {
@@ -46,6 +56,7 @@ function reset(): void {
   if (aiPendingTimer !== null) {
     clearTimeout(aiPendingTimer);
     aiPendingTimer = null;
+    renderer.setAiThinking(null);
   }
   state = initialState();
   renderer.setState(state);
@@ -80,9 +91,8 @@ function updatePanels(s: GameState): void {
   }
 }
 
-// ── Debug panel ────────────────────────────────────────────────────────────
+// ── Difficulty ─────────────────────────────────────────────────────────────
 
-const debugPanel = document.getElementById("debug-panel");
 const difficultyButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-difficulty]"));
 
 function setDifficulty(d: Difficulty): void {
@@ -103,7 +113,6 @@ for (const btn of difficultyButtons) {
 
 function toggleDebug(): void {
   renderer.toggleDebugPaths();
-  debugPanel?.classList.toggle("visible", renderer.isDebugPaths);
 }
 
 // ──────────────────────────────────────────────────────────────────────────

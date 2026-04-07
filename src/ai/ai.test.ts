@@ -56,7 +56,9 @@ describe("AI", () => {
   });
 
   test("difficulty - easy/medium filters wall candidates", () => {
-    const state = initialState();
+    const base = initialState();
+    // chooseAction requires it to be the AI team's turn (stateMachine rejects off-turn actions).
+    const state: GameState = { ...base, phase: { kind: "playing", activeTeam: "black" } };
     // In easy mode, AI should only consider walls that block the opponent's current shortest path.
     // This is hard to test directly without exporting wallCandidates,
     // but we can check if it at least doesn't crash and returns a valid action.
