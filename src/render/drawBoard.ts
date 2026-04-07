@@ -28,8 +28,9 @@ export function drawBoard(
       const isLegal = legalMoves.some((c) => c.x === x && c.y === y);
       const isHovered = hoveredMove !== null && hoveredMove.x === x && hoveredMove.y === y;
 
+      ctx.save();
       if (isHovered) {
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.5;
         if (isLegal) {
           ctx.fillStyle = COLORS.cellHover;
           ctx.strokeStyle = COLORS.cellHoverStroke;
@@ -39,14 +40,24 @@ export function drawBoard(
         }
       } else {
         ctx.fillStyle = isLegal ? COLORS.cellHighlight : COLORS.cell;
+        // Raise the "normal" block with shadow
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = "rgba(0,0,0,0.65)";
+        ctx.shadowOffsetY = 4;
       }
 
       ctx.beginPath();
       ctx.roundRect(px, py, CELL_PX, CELL_PX, 4);
       ctx.fill();
+
       if (isHovered) {
         ctx.stroke();
+      } else if (isLegal) {
+          // Subtle inner glow for legal move hint
+          ctx.strokeStyle = "rgba(255,255,255,0.06)";
+          ctx.stroke();
       }
+      ctx.restore();
     }
   }
 }

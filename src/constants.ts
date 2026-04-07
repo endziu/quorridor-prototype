@@ -16,22 +16,22 @@ export const CANVAS_PX = GRID_SIZE * CELL_PX + (GRID_SIZE - 1) * GAP_PX; // 750
 export const WALLS_PER_PLAYER = 10;
 
 export const COLORS = {
-  background: "#1a1a2e",
-  cell: "#242444",
-  cellHighlight: "rgba(0, 212, 255, 0.25)",
-  cellHover: "rgba(0, 255, 170, 0.25)",
+  background: "#2d0a0a", // Deep burgundy board base
+  cell: "#1c1c1c",       // Charcoal raised blocks
+  cellHighlight: "rgba(255, 255, 255, 0.12)",
+  cellHover: "rgba(0, 255, 170, 0.22)",
   cellHoverStroke: "rgba(0, 255, 170, 0.6)",
-  cellHoverInvalid: "rgba(255, 80, 80, 0.3)",
+  cellHoverInvalid: "rgba(255, 60, 60, 0.25)",
   cellHoverInvalidStroke: "rgba(255, 50, 50, 0.7)",
-  wallSlot: "rgba(100, 110, 160, 0.25)",
-  wallWhite: "#e67e22",
-  wallBlack: "#7e4a35",
-  wallWhiteStroke: "rgba(255, 255, 255, 0.3)",
-  wallBlackStroke: "rgba(0, 0, 0, 0.3)",
-  white: "#ffffff",
-  black: "#111111",
-  whiteStroke: "#cccccc",
-  blackStroke: "#444444",
-  text: "#f0f0ff",
-  winOverlay: "rgba(10, 10, 25, 0.85)",
+  wallSlot: "#160505",   // Darker deep grooves
+  wallWhite: "#d4a373",  // Light wood
+  wallBlack: "#8b5e34",  // Darker wood
+  wallWhiteStroke: "rgba(0, 0, 0, 0.2)",
+  wallBlackStroke: "rgba(0, 0, 0, 0.2)",
+  white: "#f8f1e7",      // Cream/Bone pawn
+  black: "#2a2a2a",      // Ebony pawn
+  whiteStroke: "#c5b4a2",
+  blackStroke: "#111111",
+  text: "#e8d8c8",
+  winOverlay: "rgba(0, 0, 0, 0.82)",
 } as const;

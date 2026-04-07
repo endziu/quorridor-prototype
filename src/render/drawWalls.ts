@@ -15,9 +15,18 @@ function wallPath(ctx: CanvasRenderingContext2D, wall: Wall): void {
 function drawPlacedWall(ctx: CanvasRenderingContext2D, wall: PlacedWall): void {
   const isWhite = wall.placedBy === "white";
   wallPath(ctx, wall);
+
+  ctx.save();
+  ctx.shadowBlur = 6;
+  ctx.shadowColor = "rgba(0,0,0,0.6)";
+  ctx.shadowOffsetY = 3;
+
   ctx.fillStyle = isWhite ? COLORS.wallWhite : COLORS.wallBlack;
   ctx.fill();
+  ctx.restore();
+
   ctx.strokeStyle = isWhite ? COLORS.wallWhiteStroke : COLORS.wallBlackStroke;
+  ctx.lineWidth = 1;
   ctx.stroke();
 }
 
