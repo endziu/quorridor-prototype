@@ -31,9 +31,8 @@
         padding: 10px 16px;
         background: #161628;
         border: 1px solid #242440;
-        transition: background 0.25s, border-color 0.25s;
         opacity: 0.45;
-        transition: opacity 0.25s;
+        transition: background 0.25s, border-color 0.25s, opacity 0.25s;
       }
 
       .player-panel.black-panel {
@@ -312,15 +311,15 @@
       const playBtn = document.getElementById('rules-play-btn');
       const checkbox = document.getElementById('dont-show-again');
 
-      if (localStorage.getItem(STORAGE_KEY) === 'true') {
+      if (backdrop && localStorage.getItem(STORAGE_KEY) === 'true') {
         backdrop.classList.add('hidden');
       }
 
-      playBtn.addEventListener('click', () => {
-        if (checkbox.checked) {
+      playBtn?.addEventListener('click', () => {
+        if (checkbox instanceof HTMLInputElement && checkbox.checked) {
           localStorage.setItem(STORAGE_KEY, 'true');
         }
-        backdrop.classList.add('hidden');
+        backdrop?.classList.add('hidden');
       });
     </script>
 
