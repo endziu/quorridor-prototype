@@ -2,10 +2,7 @@ import type { Cell, GameAction, GameState, Team } from "../types.ts";
 import { getLegalMoves } from "../logic/movement.ts";
 import { isWallPlacementLegal } from "../logic/walls.ts";
 import { GRID_SIZE } from "../constants.ts";
-
-function cellEq(a: Cell, b: Cell): boolean {
-  return a.x === b.x && a.y === b.y;
-}
+import { cellEq } from "../utils/coords.ts";
 
 function goalReached(pos: Cell, team: Team): boolean {
   return team === "white" ? pos.y === 0 : pos.y === GRID_SIZE - 1;

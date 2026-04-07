@@ -1,6 +1,10 @@
 import { CELL_PX, CELL_STRIDE, GAP_PX, GRID_SIZE } from "../constants.ts";
 import type { Cell, WallOrientation, WallPos } from "../types.ts";
 
+export function cellEq(a: Cell, b: Cell): boolean {
+  return a.x === b.x && a.y === b.y;
+}
+
 /** Top-left pixel origin of a cell. */
 export function cellOrigin(c: Cell): { px: number; py: number } {
   return { px: c.x * CELL_STRIDE, py: c.y * CELL_STRIDE };

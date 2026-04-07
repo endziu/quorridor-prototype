@@ -1,6 +1,7 @@
 import { GRID_SIZE } from "../constants.ts";
 import type { Cell, GameState, Team } from "../types.ts";
 import { isEdgeBlocked } from "./walls.ts";
+import { cellEq } from "../utils/coords.ts";
 
 type Direction = "forward" | "back" | "left" | "right";
 
@@ -22,9 +23,6 @@ function inBounds(c: Cell): boolean {
   return c.x >= 0 && c.x < GRID_SIZE && c.y >= 0 && c.y < GRID_SIZE;
 }
 
-function cellEq(a: Cell, b: Cell): boolean {
-  return a.x === b.x && a.y === b.y;
-}
 
 /**
  * Returns all cells the active player can legally move to.
