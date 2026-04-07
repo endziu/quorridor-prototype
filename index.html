@@ -310,6 +310,34 @@
       }
 
       #rules-play-btn:hover { background: #ffffff; }
+
+      .info-btn {
+        background: none;
+        border: none;
+        color: #b5a48e;
+        font-size: 15px;
+        line-height: 1;
+        padding: 0 0 0 8px;
+        cursor: pointer;
+        opacity: 0.5;
+        transition: opacity 0.2s;
+        flex-shrink: 0;
+      }
+      .info-btn:hover { opacity: 1; }
+
+      .copyright-link {
+        position: fixed;
+        bottom: 12px;
+        right: 14px;
+        color: #b5a48e;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        text-decoration: none;
+        opacity: 0.5;
+        transition: opacity 0.2s;
+        z-index: 50;
+      }
+      .copyright-link:hover { opacity: 1; }
     </style>
   </head>
   <body>
@@ -352,6 +380,7 @@
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-black"></div>
         <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
+        <button class="info-btn" aria-label="Show rules">🛈</button>
       </div>
 
       <canvas id="screen"></canvas>
@@ -363,6 +392,7 @@
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-white"></div>
         <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
+        <button class="info-btn" aria-label="Show rules">🛈</button>
       </div>
 
       <div id="debug-panel">
@@ -383,6 +413,10 @@
         backdrop.classList.add('hidden');
       }
 
+      document.querySelectorAll('.info-btn').forEach(btn => {
+        btn.addEventListener('click', () => backdrop?.classList.remove('hidden'));
+      });
+
       playBtn?.addEventListener('click', () => {
         if (checkbox instanceof HTMLInputElement && checkbox.checked) {
           localStorage.setItem(STORAGE_KEY, 'true');
@@ -392,5 +426,6 @@
     </script>
 
     <script type="module" src="/src/main.ts"></script>
+    <a href="https://endziu.xyz" target="_blank" rel="noopener" class="copyright-link">©</a>
   </body>
 </html>
