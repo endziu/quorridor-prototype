@@ -19,22 +19,22 @@ export const CANVAS_PX = (GRID_SIZE * CELL_PX) + ((GRID_SIZE - 1) * GAP_PX) + (B
 export const WALLS_PER_PLAYER = 10;
 
 export const COLORS = {
-  background: "#2d0a0a", // Deep burgundy board base
-  cell: "#1c1c1c",       // Charcoal raised blocks
-  cellHighlight: "rgba(255, 255, 255, 0.12)",
-  cellHover: "rgba(0, 255, 170, 0.22)",
-  cellHoverStroke: "rgba(0, 255, 170, 0.6)",
-  cellHoverInvalid: "rgba(255, 60, 60, 0.25)",
+  background: "#5d3a1a", // Warm teak wood base
+  cell: "#3c2a1a",       // Dark walnut raised blocks
+  cellHighlight: "rgba(255, 255, 255, 0.15)",
+  cellHover: "rgba(100, 255, 100, 0.25)",
+  cellHoverStroke: "rgba(100, 255, 100, 0.6)",
+  cellHoverInvalid: "rgba(255, 80, 80, 0.3)",
   cellHoverInvalidStroke: "rgba(255, 50, 50, 0.7)",
-  wallSlot: "#160505",   // Darker deep grooves
-  wallWhite: "#d4a373",  // Light wood
-  wallBlack: "#8b5e34",  // Darker wood
-  wallWhiteStroke: "rgba(0, 0, 0, 0.2)",
-  wallBlackStroke: "rgba(0, 0, 0, 0.2)",
-  white: "#f8f1e7",      // Cream/Bone pawn
-  black: "#2a2a2a",      // Ebony pawn
-  whiteStroke: "#c5b4a2",
-  blackStroke: "#111111",
-  text: "#e8d8c8",
-  winOverlay: "rgba(0, 0, 0, 0.82)",
+  wallSlot: "#3a2510",   // Darker grooves
+  wallWhite: "#e6ba8c",  // Light birch/pine
+  wallBlack: "#6d4c31",  // Mahogany
+  wallWhiteStroke: "rgba(0, 0, 0, 0.15)",
+  wallBlackStroke: "rgba(0, 0, 0, 0.15)",
+  white: "#fdf8f0",      // Polished bone
+  black: "#26211c",      // Dark wood ebony
+  whiteStroke: "#dcc9b0",
+  blackStroke: "#1a1612",
+  text: "#f5e6d3",
+  winOverlay: "rgba(45, 25, 10, 0.85)",
 } as const;

@@ -14,12 +14,12 @@ export function drawPlayers(ctx: CanvasRenderingContext2D, state: GameState): vo
     if (isActive) {
       ctx.save();
       ctx.shadowBlur = 25;
-      ctx.shadowColor = team === "white" ? "rgba(255,255,255,0.45)" : "rgba(100,100,255,0.4)";
+      ctx.shadowColor = team === "white" ? "rgba(255,255,255,0.4)" : "rgba(120,120,255,0.3)";
       ctx.shadowOffsetY = 0;
     } else {
       ctx.save();
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = "rgba(0,0,0,0.8)";
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = "rgba(0,0,0,0.7)";
       ctx.shadowOffsetY = 6;
     }
 

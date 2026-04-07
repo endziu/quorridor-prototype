@@ -8,8 +8,8 @@ export function drawBoard(
   legalMoves: readonly Cell[],
   hoveredMove: Cell | null = null,
 ): void {
-  // Background
-  ctx.fillStyle = COLORS.background;
+  // Background (the dark wooden base plate)
+  ctx.fillStyle = COLORS.wallSlot;
   ctx.fillRect(0, 0, CANVAS_PX, CANVAS_PX);
 
   // Draw gap regions (wall slot indicators)
@@ -24,7 +24,7 @@ export function drawBoard(
   }
 
   // Draw cells
-...
+  for (let x = 0; x < GRID_SIZE; x++) {
     for (let y = 0; y < GRID_SIZE; y++) {
       const { px, py } = cellOrigin({ x, y });
       const isLegal = legalMoves.some((c) => c.x === x && c.y === y);
@@ -51,6 +51,17 @@ export function drawBoard(
       ctx.beginPath();
       ctx.roundRect(px, py, CELL_PX, CELL_PX, 4);
       ctx.fill();
+
+      // Subtle wood grain effect
+      ctx.strokeStyle = "rgba(0,0,0,0.08)";
+      ctx.lineWidth = 1;
+      for (let i = 4; i < CELL_PX - 4; i += 6) {
+        ctx.beginPath();
+        const xOff = i + (Math.random() * 2);
+        ctx.moveTo(px + xOff, py + 4);
+        ctx.lineTo(px + xOff, py + CELL_PX - 4);
+        ctx.stroke();
+      }
 
       if (isHovered) {
         ctx.stroke();
