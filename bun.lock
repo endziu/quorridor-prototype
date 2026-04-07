@@ -5,7 +5,7 @@
     "": {
       "name": "quoridor",
       "devDependencies": {
-        "@types/bun": "^1.3.11",
+        "@types/bun": "1.3.11",
         "typescript": "5.8.3",
         "vite": "6.3.1",
       },
