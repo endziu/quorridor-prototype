@@ -1,6 +1,8 @@
 import { GRID_SIZE } from "../constants.ts";
-import type { Cell, Direction, GameState, Team } from "../types.ts";
+import type { Cell, GameState, Team } from "../types.ts";
 import { isEdgeBlocked } from "./walls.ts";
+
+type Direction = "forward" | "back" | "left" | "right";
 
 /** Absolute delta for a direction given a team. */
 function delta(dir: Direction, team: Team): Cell {

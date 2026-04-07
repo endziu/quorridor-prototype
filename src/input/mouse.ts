@@ -1,6 +1,7 @@
-import type { GameAction, GameState, WallOrientation, WallPreview } from "../types.ts";
+import type { GameAction, GameState, WallPreview } from "../types.ts";
 import { isWallPlacementLegal, wallFromPosOrientation } from "../logic/walls.ts";
-import { pixelToWallPos } from "../utils/coords.ts";
+import { getLegalMoves } from "../logic/movement.ts";
+import { pixelToCell, pixelToWallHit } from "../utils/coords.ts";
 
 type DispatchFn = (action: GameAction) => void;
 type GetStateFn = () => GameState;
@@ -14,32 +15,21 @@ function canvasCoords(
   return { px: e.clientX - rect.left, py: e.clientY - rect.top };
 }
 
-function updatePreview(
-  canvas: HTMLCanvasElement,
-  e: MouseEvent,
-  getState: GetStateFn,
-  setPreview: SetPreviewFn,
-): void {
-  const state = getState();
-  if (state.phase.kind !== "playing") {
-    setPreview(null);
-    return;
-  }
+function resolvePreview(
+  px: number,
+  py: number,
+  state: GameState,
+): WallPreview | null {
+  if (state.phase.kind !== "playing") return null;
 
-  // Right mouse button held (buttons === 2) → vertical; otherwise horizontal
-  const orientation: WallOrientation = e.buttons === 2 ? "vertical" : "horizontal";
-  const { px, py } = canvasCoords(canvas, e);
-  const pos = pixelToWallPos(px, py, orientation);
+  const hit = pixelToWallHit(px, py);
+  if (hit === null) return null;
 
-  if (pos === null) {
-    setPreview(null);
-    return;
-  }
-
+  const { pos, orientation } = hit;
   const team = state.phase.activeTeam;
   const wall = wallFromPosOrientation(pos, orientation);
   const valid = isWallPlacementLegal(state, team, wall);
-  setPreview({ pos, orientation, valid });
+  return { pos, orientation, valid };
 }
 
 export function attachMouse(
@@ -49,24 +39,55 @@ export function attachMouse(
   setPreview: SetPreviewFn,
 ): void {
   canvas.addEventListener("contextmenu", (e) => e.preventDefault());
-  canvas.addEventListener("mouseleave", () => setPreview(null));
-
-  canvas.addEventListener("mousemove", (e) => {
-    updatePreview(canvas, e, getState, setPreview);
+  canvas.addEventListener("mouseleave", () => {
+    setPreview(null);
+    canvas.style.cursor = "crosshair";
   });
 
-  canvas.addEventListener("mousedown", (e) => {
+  canvas.addEventListener("mousemove", (e) => {
+    const { px, py } = canvasCoords(canvas, e);
+    const state = getState();
+
+    setPreview(resolvePreview(px, py, state));
+
+    if (state.phase.kind === "playing") {
+      const cell = pixelToCell(px, py);
+      const isLegal =
+        cell !== null &&
+        getLegalMoves(state, state.phase.activeTeam).some(
+          (m) => m.x === cell.x && m.y === cell.y,
+        );
+      canvas.style.cursor = isLegal ? "pointer" : "crosshair";
+    } else {
+      canvas.style.cursor = "default";
+    }
+  });
+
+  canvas.addEventListener("click", (e) => {
     const state = getState();
     if (state.phase.kind !== "playing") return;
 
-    e.preventDefault();
-    const orientation: WallOrientation = e.button === 2 ? "vertical" : "horizontal";
     const { px, py } = canvasCoords(canvas, e);
-    const pos = pixelToWallPos(px, py, orientation);
-    if (pos === null) return;
-
     const team = state.phase.activeTeam;
-    const wall = wallFromPosOrientation(pos, orientation);
-    dispatch({ type: "PLACE_WALL", team, wall });
+
+    // Wall placement takes priority (cursor in a gap strip)
+    const wallHit = pixelToWallHit(px, py);
+    if (wallHit !== null) {
+      dispatch({
+        type: "PLACE_WALL",
+        team,
+        wall: wallFromPosOrientation(wallHit.pos, wallHit.orientation),
+      });
+      return;
+    }
+
+    // Pawn movement (cursor on a highlighted legal cell)
+    const cell = pixelToCell(px, py);
+    if (cell !== null) {
+      const legal = getLegalMoves(state, team);
+      if (legal.some((m) => m.x === cell.x && m.y === cell.y)) {
+        dispatch({ type: "MOVE", team, target: cell });
+      }
+    }
   });
 }

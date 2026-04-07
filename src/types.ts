@@ -1,6 +1,5 @@
 export type Team = "white" | "black";
 export type WallOrientation = "horizontal" | "vertical";
-export type Direction = "forward" | "back" | "left" | "right";
 
 /** A cell on the 9×9 grid. x: 0–8 col left→right, y: 0–8 row top→bottom. */
 export interface Cell {

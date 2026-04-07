@@ -6,22 +6,324 @@
     <title>Quoridor</title>
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
+
       body {
-        background: #1a1a2e;
+        background: #0d0d1a;
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        font-family: monospace;
+        font-family: 'Courier New', monospace;
       }
+
+      .game-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        width: 750px;
+      }
+
+      /* ── Player panels ─────────────────────────────────────── */
+      .player-panel {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        background: #161628;
+        border: 1px solid #242440;
+        transition: background 0.25s, border-color 0.25s;
+        opacity: 0.45;
+        transition: opacity 0.25s;
+      }
+
+      .player-panel.black-panel {
+        border-radius: 8px 8px 0 0;
+        border-bottom: none;
+      }
+
+      .player-panel.white-panel {
+        border-radius: 0 0 8px 8px;
+        border-top: none;
+      }
+
+      .player-panel.active {
+        opacity: 1;
+        background: #1a1a30;
+      }
+
+      /* ── Turn arrow ────────────────────────────────────────── */
+      .turn-arrow {
+        font-size: 16px;
+        color: #5ba3ff;
+        width: 18px;
+        flex-shrink: 0;
+        visibility: hidden;
+      }
+
+      .player-panel.active .turn-arrow { visibility: visible; }
+
+      /* ── Pawn dot ──────────────────────────────────────────── */
+      .pawn-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .pawn-dot.white {
+        background: #f0f0f0;
+        box-shadow: 0 0 6px rgba(240, 240, 240, 0.35);
+      }
+
+      .pawn-dot.black {
+        background: #1e1e1e;
+        border: 2px solid #555;
+      }
+
+      /* ── Player name ───────────────────────────────────────── */
+      .player-name {
+        font-size: 16px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        color: #c8c8d8;
+        min-width: 58px;
+      }
+
+      /* ── Walls ─────────────────────────────────────────────── */
+      .walls-label {
+        font-size: 13px;
+        color: #44445a;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        margin-left: 4px;
+      }
+
+      .walls-pips {
+        display: flex;
+        gap: 3px;
+        align-items: center;
+      }
+
+      .pip {
+        width: 7px;
+        height: 22px;
+        border-radius: 2px;
+        background: #c97b3a;
+        transition: opacity 0.2s, background 0.2s;
+      }
+
+      .pip.used {
+        background: #2a2a40;
+        opacity: 0.6;
+      }
+
+      /* ── Controls hint ─────────────────────────────────────── */
+      .controls-hint {
+        margin-left: auto;
+        font-size: 13px;
+        color: #33334a;
+        letter-spacing: 0.5px;
+      }
+
+      .player-panel.active .controls-hint { color: #55556e; }
+
+      /* ── Canvas ────────────────────────────────────────────── */
       canvas {
         display: block;
         cursor: crosshair;
       }
+
+      /* ── Rules modal ───────────────────────────────────────── */
+      #rules-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.82);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+      }
+
+      #rules-backdrop.hidden { display: none; }
+
+      #rules-modal {
+        background: #161628;
+        border: 1px solid #2e2e50;
+        border-radius: 10px;
+        padding: 32px 36px;
+        max-width: 520px;
+        width: 90vw;
+        color: #c8c8d8;
+      }
+
+      #rules-modal h1 {
+        font-size: 22px;
+        letter-spacing: 3px;
+        margin-bottom: 20px;
+        color: #e0e0f0;
+      }
+
+      #rules-modal h2 {
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #5ba3ff;
+        margin: 18px 0 8px;
+      }
+
+      #rules-modal p, #rules-modal li {
+        font-size: 13px;
+        line-height: 1.7;
+        color: #9090a8;
+      }
+
+      #rules-modal ul {
+        padding-left: 18px;
+      }
+
+      #rules-modal li + li { margin-top: 4px; }
+
+      .rules-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .rules-key {
+        background: #0d0d1a;
+        border: 1px solid #2e2e50;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #9090a8;
+      }
+
+      .rules-key span {
+        display: inline-block;
+        background: #252545;
+        border-radius: 3px;
+        padding: 1px 6px;
+        margin-right: 6px;
+        color: #c8c8d8;
+        font-size: 11px;
+      }
+
+      .rules-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid #22223a;
+      }
+
+      .rules-footer label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #55556e;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .rules-footer input[type="checkbox"] {
+        accent-color: #5ba3ff;
+        width: 14px;
+        height: 14px;
+        cursor: pointer;
+      }
+
+      #rules-play-btn {
+        background: #5ba3ff;
+        color: #0d0d1a;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 28px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      #rules-play-btn:hover { background: #7bb8ff; }
     </style>
   </head>
   <body>
-    <canvas id="screen"></canvas>
+    <!-- Rules modal -->
+    <div id="rules-backdrop">
+      <div id="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+        <h1 id="rules-title">QUORIDOR</h1>
+
+        <h2>Objective</h2>
+        <p>Be the first player to move your pawn to the opposite side of the board.</p>
+
+        <h2>On your turn, do one of:</h2>
+        <ul>
+          <li><strong>Move your pawn</strong> — one step in any direction (up, down, left, right).</li>
+          <li><strong>Place a wall</strong> — blocks two cell-gaps to slow your opponent. Walls cannot completely cut off either player's path to their goal.</li>
+        </ul>
+
+        <h2>Controls</h2>
+        <div class="rules-controls">
+          <div class="rules-key"><span>Click</span> Move to highlighted cell</div>
+          <div class="rules-key"><span>Click gap</span> Place wall</div>
+          <div class="rules-key"><span>R</span> Restart game</div>
+        </div>
+
+        <div class="rules-footer">
+          <label>
+            <input type="checkbox" id="dont-show-again" />
+            Don't show again
+          </label>
+          <button id="rules-play-btn">PLAY</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="game-wrapper">
+      <div class="player-panel black-panel" id="panel-black">
+        <span class="turn-arrow">▶</span>
+        <div class="pawn-dot black"></div>
+        <span class="player-name">BLACK</span>
+        <span class="walls-label">walls</span>
+        <div class="walls-pips" id="pips-black"></div>
+        <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
+      </div>
+
+      <canvas id="screen"></canvas>
+
+      <div class="player-panel white-panel" id="panel-white">
+        <span class="turn-arrow">▶</span>
+        <div class="pawn-dot white"></div>
+        <span class="player-name">WHITE</span>
+        <span class="walls-label">walls</span>
+        <div class="walls-pips" id="pips-white"></div>
+        <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = 'quoridor_hideRules';
+      const backdrop = document.getElementById('rules-backdrop');
+      const playBtn = document.getElementById('rules-play-btn');
+      const checkbox = document.getElementById('dont-show-again');
+
+      if (localStorage.getItem(STORAGE_KEY) === 'true') {
+        backdrop.classList.add('hidden');
+      }
+
+      playBtn.addEventListener('click', () => {
+        if (checkbox.checked) {
+          localStorage.setItem(STORAGE_KEY, 'true');
+        }
+        backdrop.classList.add('hidden');
+      });
+    </script>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

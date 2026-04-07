@@ -1,4 +1,4 @@
-import { CELL_PX, CELL_STRIDE, GAP_PX } from "../constants.ts";
+import { CELL_PX, CELL_STRIDE, GAP_PX, GRID_SIZE } from "../constants.ts";
 import type { Cell, WallOrientation, WallPos } from "../types.ts";
 
 /** Top-left pixel origin of a cell. */
@@ -24,7 +24,7 @@ export function horizontalWallRect(pos: WallPos): {
   return {
     x: pos.x * CELL_STRIDE,
     y: pos.y * CELL_STRIDE + CELL_PX,
-    w: CELL_STRIDE * 2,
+    w: CELL_PX * 2 + GAP_PX,
     h: GAP_PX,
   };
 }
@@ -40,45 +40,63 @@ export function verticalWallRect(pos: WallPos): {
     x: pos.x * CELL_STRIDE + CELL_PX,
     y: pos.y * CELL_STRIDE,
     w: GAP_PX,
-    h: CELL_STRIDE * 2,
+    h: CELL_PX * 2 + GAP_PX,
   };
 }
 
 /**
- * Convert canvas pixel coords to the nearest wall anchor + orientation.
- * Returns null if the cursor is not near a wall slot.
- *
- * Strategy: determine which cell-stride column/row the pixel falls in.
- * If the local offset within that stride is in the gap region (>= CELL_PX),
- * the cursor is in a wall slot. The orientation is supplied by the caller
- * (determined by mouse button), so we just need to find the best anchor.
+ * Convert canvas pixel coords to a cell.
+ * Returns null if the cursor is in a gap strip rather than a cell area.
  */
-export function pixelToWallPos(
-  px: number,
-  py: number,
-  orientation: WallOrientation,
-): WallPos | null {
-  const col = Math.floor(px / CELL_STRIDE); // 0–8
-  const row = Math.floor(py / CELL_STRIDE); // 0–8
+export function pixelToCell(px: number, py: number): Cell | null {
+  const col = Math.floor(px / CELL_STRIDE);
+  const row = Math.floor(py / CELL_STRIDE);
   const localX = px - col * CELL_STRIDE;
   const localY = py - row * CELL_STRIDE;
 
-  const inVGap = localX >= CELL_PX && col <= 7; // in the vertical gap right of col
-  const inHGap = localY >= CELL_PX && row <= 7; // in the horizontal gap below row
+  if (localX >= CELL_PX || localY >= CELL_PX) return null;
+  if (col < 0 || col >= GRID_SIZE || row < 0 || row >= GRID_SIZE) return null;
 
-  if (orientation === "horizontal") {
-    // Horizontal wall needs to be near a horizontal gap
-    if (!inHGap) return null;
-    // The anchor x is col if we're in the left half of that col's gap, else col-1
-    // Simplify: use col directly, clamped to 0–7
-    const anchorX = Math.max(0, Math.min(7, col));
-    const anchorY = Math.max(0, Math.min(7, row));
-    return { x: anchorX, y: anchorY };
+  return { x: col, y: row };
+}
+
+/**
+ * Convert canvas pixel coords to a wall anchor + orientation.
+ * Returns null if the cursor is not in any gap strip.
+ *
+ * - Column gap strip (between columns) → vertical wall
+ * - Row gap strip (between rows)       → horizontal wall
+ * - Intersection of both strips        → whichever gap centerline is closer
+ */
+export function pixelToWallHit(
+  px: number,
+  py: number,
+): { pos: WallPos; orientation: WallOrientation } | null {
+  const col = Math.floor(px / CELL_STRIDE);
+  const row = Math.floor(py / CELL_STRIDE);
+  const localX = px - col * CELL_STRIDE;
+  const localY = py - row * CELL_STRIDE;
+
+  const inColGap = localX >= CELL_PX && col <= 7;
+  const inRowGap = localY >= CELL_PX && row <= 7;
+
+  if (!inColGap && !inRowGap) return null;
+
+  let orientation: WallOrientation;
+  if (inColGap && inRowGap) {
+    // Intersection: pick by distance to each gap's centerline
+    const dCol = Math.abs(localX - (CELL_PX + GAP_PX / 2));
+    const dRow = Math.abs(localY - (CELL_PX + GAP_PX / 2));
+    orientation = dCol <= dRow ? "vertical" : "horizontal";
   } else {
-    // Vertical wall needs to be near a vertical gap
-    if (!inVGap) return null;
-    const anchorX = Math.max(0, Math.min(7, col));
-    const anchorY = Math.max(0, Math.min(7, row));
-    return { x: anchorX, y: anchorY };
+    orientation = inColGap ? "vertical" : "horizontal";
   }
+
+  return {
+    pos: {
+      x: Math.max(0, Math.min(7, col)),
+      y: Math.max(0, Math.min(7, row)),
+    },
+    orientation,
+  };
 }

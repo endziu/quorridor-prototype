@@ -26,7 +26,9 @@ export function drawBoard(
       const { px, py } = cellOrigin({ x, y });
       const isLegal = legalMoves.some((c) => c.x === x && c.y === y);
       ctx.fillStyle = isLegal ? COLORS.cellHighlight : COLORS.cell;
-      ctx.fillRect(px, py, CELL_PX, CELL_PX);
+      ctx.beginPath();
+      ctx.roundRect(px, py, CELL_PX, CELL_PX, 4);
+      ctx.fill();
     }
   }
 }
