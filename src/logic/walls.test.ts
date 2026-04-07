@@ -1,7 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { isEdgeBlocked } from "./walls.ts";
+import { isEdgeBlocked, isWallPlacementLegal, wallFromPosOrientation } from "./walls.ts";
 import { playerHasPath } from "./pathfinding.ts";
-import type { Wall } from "../types.ts";
+import { initialState } from "../state/GameState.ts";
+import type { Wall, GameState } from "../types.ts";
 
 describe("isEdgeBlocked", () => {
   test("no walls: no edge is blocked", () => {
@@ -64,5 +65,68 @@ describe("playerHasPath", () => {
     ];
     // Col 8 still open — white can go through col 8
     expect(playerHasPath(walls, { x: 4, y: 8 }, "white")).toBe(true);
+  });
+});
+
+describe("isWallPlacementLegal - Conflicts", () => {
+  const state: GameState = {
+    ...initialState(),
+    players: {
+      white: { pos: { x: 4, y: 8 }, wallsLeft: 10 },
+      black: { pos: { x: 4, y: 0 }, wallsLeft: 10 },
+    },
+    walls: [{ pos: { x: 4, y: 4 }, orientation: "horizontal", placedBy: "white" }]
+  };
+
+  test("rejects overlapping horizontal walls", () => {
+    // Exact overlap
+    expect(isWallPlacementLegal(state, "black", { pos: { x: 4, y: 4 }, orientation: "horizontal" })).toBe(false);
+    // Partial overlap (shift left)
+    expect(isWallPlacementLegal(state, "black", { pos: { x: 3, y: 4 }, orientation: "horizontal" })).toBe(false);
+    // Partial overlap (shift right)
+    expect(isWallPlacementLegal(state, "black", { pos: { x: 5, y: 4 }, orientation: "horizontal" })).toBe(false);
+  });
+
+  test("rejects overlapping vertical walls", () => {
+    const vState: GameState = {
+      ...state,
+      walls: [{ pos: { x: 4, y: 4 }, orientation: "vertical", placedBy: "white" }]
+    };
+    // Exact overlap
+    expect(isWallPlacementLegal(vState, "black", { pos: { x: 4, y: 4 }, orientation: "vertical" })).toBe(false);
+    // Partial overlap (shift up)
+    expect(isWallPlacementLegal(vState, "black", { pos: { x: 4, y: 3 }, orientation: "vertical" })).toBe(false);
+    // Partial overlap (shift down)
+    expect(isWallPlacementLegal(vState, "black", { pos: { x: 4, y: 5 }, orientation: "vertical" })).toBe(false);
+  });
+
+  test("rejects crossing walls", () => {
+    // Horizontal wall at {4,4} blocks a vertical wall at {4,4}
+    expect(isWallPlacementLegal(state, "black", { pos: { x: 4, y: 4 }, orientation: "vertical" })).toBe(false);
+  });
+
+  test("allows adjacent non-conflicting walls", () => {
+    // Next to it horizontally
+    expect(isWallPlacementLegal(state, "black", { pos: { x: 2, y: 4 }, orientation: "horizontal" })).toBe(true);
+    // Next to it vertically
+    expect(isWallPlacementLegal(state, "black", { pos: { x: 4, y: 5 }, orientation: "horizontal" })).toBe(true);
+  });
+
+  test("rejects wall placement when budget is exhausted", () => {
+    const poorState: GameState = {
+      ...state,
+      players: {
+        ...state.players,
+        black: { ...state.players.black, wallsLeft: 0 }
+      }
+    };
+    expect(isWallPlacementLegal(poorState, "black", { pos: { x: 0, y: 0 }, orientation: "horizontal" })).toBe(false);
+  });
+});
+
+describe("wallFromPosOrientation", () => {
+  test("creates a wall object", () => {
+    const wall = wallFromPosOrientation({ x: 1, y: 2 }, "vertical");
+    expect(wall).toEqual({ pos: { x: 1, y: 2 }, orientation: "vertical" });
   });
 });

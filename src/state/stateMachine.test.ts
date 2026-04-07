@@ -81,4 +81,41 @@ describe("stateMachine", () => {
     });
     expect(next.phase).toMatchObject({ kind: "won", winner: "black" });
   });
+
+  test("unknown action returns same state", () => {
+    const state = initialState();
+    // @ts-ignore: testing runtime behavior for invalid action
+    const next = dispatch(state, { type: "UNKNOWN" });
+    expect(next).toBe(state);
+  });
+
+  test("rejects PLACE_WALL when budget is empty", () => {
+    const base = initialState();
+    const poorState: GameState = {
+      ...base,
+      players: {
+        ...base.players,
+        white: { ...base.players.white, wallsLeft: 0 }
+      }
+    };
+    const next = dispatch(poorState, {
+      type: "PLACE_WALL",
+      team: "white",
+      wall: { pos: { x: 0, y: 0 }, orientation: "horizontal" }
+    });
+    expect(next).toBe(poorState);
+  });
+
+  test("rejects action when game is won", () => {
+    const base = initialState();
+    const wonState: GameState = { ...base, phase: { kind: "won", winner: "white" } };
+    const next = dispatch(wonState, { type: "MOVE", team: "white", target: { x: 4, y: 7 } });
+    expect(next).toBe(wonState);
+  });
+
+  test("rejects action from wrong team", () => {
+    const state = initialState(); // White's turn
+    const next = dispatch(state, { type: "MOVE", team: "black", target: { x: 4, y: 1 } });
+    expect(next).toBe(state);
+  });
 });
