@@ -136,10 +136,11 @@ describe("getShortestPath", () => {
     const start: Cell = { x: 4, y: 8 };
     const path = getShortestPath([], start, "white");
     expect(path).not.toBeNull();
+    const p = path!;
     // Path should be 9 cells long (y=8 to y=0)
-    expect(path).toHaveLength(9);
-    expect(path![0]).toEqual(start);
-    expect(path![8].y).toBe(0);
+    expect(p).toHaveLength(9);
+    expect(p[0]).toEqual(start);
+    expect(p[8]?.y).toBe(0);
   });
 
   test("returns null when blocked", () => {
