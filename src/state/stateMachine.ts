@@ -1,4 +1,4 @@
-import type { Cell, GameAction, GameState, PlacedWall, Team } from "../types.ts";
+import type { Cell, GameAction, GameState, Team } from "../types.ts";
 import { getLegalMoves } from "../logic/movement.ts";
 import { isWallPlacementLegal } from "../logic/walls.ts";
 import { GRID_SIZE } from "../constants.ts";
@@ -52,7 +52,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
           wallsLeft: state.players[action.team].wallsLeft - 1,
         },
       },
-      walls: [...state.walls, { ...action.wall, placedBy: action.team } satisfies PlacedWall],
+      walls: [...state.walls, { ...action.wall, placedBy: action.team }],
       phase: { kind: "playing", activeTeam: flipTeam(action.team) },
     };
   }

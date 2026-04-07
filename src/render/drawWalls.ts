@@ -17,8 +17,7 @@ function drawPlacedWall(ctx: CanvasRenderingContext2D, wall: PlacedWall): void {
   wallPath(ctx, wall);
   ctx.fillStyle = isWhite ? COLORS.wallWhite : COLORS.wallBlack;
   ctx.fill();
-  ctx.strokeStyle = isWhite ? "rgba(255, 200, 130, 0.45)" : "rgba(180, 90, 30, 0.45)";
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = isWhite ? COLORS.wallWhiteStroke : COLORS.wallBlackStroke;
   ctx.stroke();
 }
 
@@ -40,6 +39,7 @@ export function drawWalls(
   walls: readonly PlacedWall[],
   preview: WallPreview | null,
 ): void {
+  ctx.lineWidth = 1;
   for (const wall of walls) {
     drawPlacedWall(ctx, wall);
   }

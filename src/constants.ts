@@ -22,6 +22,8 @@ export const COLORS = {
   wallSlot: "rgba(80, 90, 140, 0.18)",
   wallWhite: "#c97b3a",
   wallBlack: "#5c2e0e",
+  wallWhiteStroke: "rgba(255, 200, 130, 0.45)",
+  wallBlackStroke: "rgba(180, 90, 30, 0.45)",
   white: "#f0f0f0",
   black: "#1e1e1e",
   whiteStroke: "#999999",
