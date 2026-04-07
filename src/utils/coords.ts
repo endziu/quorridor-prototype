@@ -81,13 +81,16 @@ export function pixelToWallHit(
   const localPx = px - BOARD_PADDING;
   const localPy = py - BOARD_PADDING;
 
+  // Global bounds check: cannot be in padding or beyond board
+  if (localPx < 0 || localPy < 0) return null;
+
   const col = Math.floor(localPx / CELL_STRIDE);
   const row = Math.floor(localPy / CELL_STRIDE);
   const localX = localPx - col * CELL_STRIDE;
   const localY = localPy - row * CELL_STRIDE;
 
-  const inColGap = localX >= CELL_PX && col <= 7;
-  const inRowGap = localY >= CELL_PX && row <= 7;
+  const inColGap = localX >= CELL_PX && col >= 0 && col <= 7;
+  const inRowGap = localY >= CELL_PX && row >= 0 && row <= 7;
 
   if (!inColGap && !inRowGap) return null;
 
@@ -102,10 +105,7 @@ export function pixelToWallHit(
   }
 
   return {
-    pos: {
-      x: Math.max(0, Math.min(7, col)),
-      y: Math.max(0, Math.min(7, row)),
-    },
+    pos: { x: col, y: row },
     orientation,
   };
 }

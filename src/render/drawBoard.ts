@@ -53,12 +53,14 @@ export function drawBoard(
       ctx.roundRect(px, py, CELL_PX, CELL_PX, 4);
       ctx.fill();
 
-      // Subtle wood grain effect
+      // Subtle wood grain effect (deterministic to avoid flickering)
       ctx.strokeStyle = "rgba(0,0,0,0.08)";
       ctx.lineWidth = 1;
       for (let i = 4; i < CELL_PX - 4; i += 6) {
+        // Use deterministic offset based on cell position and index
+        const deterministicOffset = ((x * 13 + y * 7 + i) % 10) / 5;
+        const xOff = i + deterministicOffset;
         ctx.beginPath();
-        const xOff = i + (Math.random() * 2);
         ctx.moveTo(px + xOff, py + 4);
         ctx.lineTo(px + xOff, py + CELL_PX - 4);
         ctx.stroke();

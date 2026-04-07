@@ -76,7 +76,9 @@ export function getShortestPath(
   let curr: Cell | null = endCell;
   while (curr) {
     path.push(curr);
-    curr = visited.get(key(curr))!;
+    const parent = visited.get(key(curr));
+    if (parent === undefined) break;
+    curr = parent;
   }
   return path.reverse();
 }

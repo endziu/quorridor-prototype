@@ -13,7 +13,7 @@ const AI_TEAM: Team | null = "black";
 let aiDifficulty: Difficulty = "medium";
 
 let state: GameState = initialState();
-let aiPending = false;
+let aiPendingTimer: ReturnType<typeof setTimeout> | null = null;
 
 const renderer = new Renderer("screen", state);
 
@@ -22,10 +22,9 @@ function getState(): GameState {
 }
 
 function scheduleAiMove(): void {
-  if (aiPending) return;
-  aiPending = true;
-  setTimeout(() => {
-    aiPending = false;
+  if (aiPendingTimer !== null) return;
+  aiPendingTimer = setTimeout(() => {
+    aiPendingTimer = null;
     if (state.phase.kind !== "playing") return;
     if (state.phase.activeTeam !== AI_TEAM) return;
     doDispatch(chooseAction(state, AI_TEAM, aiDifficulty));
@@ -44,7 +43,10 @@ function doDispatch(action: GameAction): void {
 }
 
 function reset(): void {
-  aiPending = false;
+  if (aiPendingTimer !== null) {
+    clearTimeout(aiPendingTimer);
+    aiPendingTimer = null;
+  }
   state = initialState();
   renderer.setState(state);
   renderer.setPreview(null);
@@ -106,7 +108,7 @@ function toggleDebug(): void {
 
 // ──────────────────────────────────────────────────────────────────────────
 
-attachKeyboard(reset, toggleDebug);
+const detachKeyboard = attachKeyboard(reset, toggleDebug);
 attachMouse(
   renderer.canvasElement,
   getState,
@@ -119,5 +121,8 @@ attachMouse(
 updatePanels(state);
 
 if (import.meta.hot) {
-  import.meta.hot.dispose(() => renderer.destroy());
+  import.meta.hot.dispose(() => {
+    renderer.destroy();
+    detachKeyboard();
+  });
 }

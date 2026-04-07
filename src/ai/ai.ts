@@ -115,6 +115,8 @@ export function chooseAction(state: GameState, team: Team, difficulty: Difficult
     }
   }
 
-  // bestAction is always set: the game is still playing, so at least one move exists
-  return bestAction!;
+  if (bestAction === null) {
+    throw new Error(`chooseAction: no legal action found for ${team} — called on non-playing state?`);
+  }
+  return bestAction;
 }
