@@ -15,7 +15,9 @@ function getState(): GameState {
 }
 
 function doDispatch(action: GameAction): void {
-  state = dispatch(state, action);
+  const next = dispatch(state, action);
+  if (next === state) return;
+  state = next;
   renderer.setState(state);
   updatePanels(state);
 }
