@@ -2,7 +2,7 @@ import { CELL_PX, COLORS } from "../constants.ts";
 import type { GameState, Team } from "../types.ts";
 import { cellCenter } from "../utils/coords.ts";
 import type { PawnAnim } from "./animationTypes.ts";
-import { easeOutCubic } from "./animationTypes.ts";
+import { evaluatePawnAnim } from "./animationTypes.ts";
 
 const PAWN_RADIUS = CELL_PX * 0.3;
 
@@ -13,11 +13,7 @@ function resolvePos(
   now: number,
 ): { px: number; py: number } {
   if (pawnAnim !== null && pawnAnim.team === team) {
-    const t = easeOutCubic(Math.min((now - pawnAnim.startTime) / pawnAnim.duration, 1));
-    return {
-      px: pawnAnim.startPx + (pawnAnim.endPx - pawnAnim.startPx) * t,
-      py: pawnAnim.startPy + (pawnAnim.endPy - pawnAnim.startPy) * t,
-    };
+    return evaluatePawnAnim(pawnAnim, now);
   }
   return cellCenter(state.players[team].pos);
 }

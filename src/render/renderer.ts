@@ -8,7 +8,7 @@ import { getLegalMoves } from "../logic/movement.ts";
 import { getShortestPath } from "../logic/pathfinding.ts";
 import { cellCenter } from "../utils/coords.ts";
 import type { PawnAnim, WallAnim } from "./animationTypes.ts";
-import { easeOutCubic } from "./animationTypes.ts";
+import { evaluatePawnAnim } from "./animationTypes.ts";
 
 function computeLegalMoves(state: GameState): readonly Cell[] {
   return state.phase.kind === "playing"
@@ -53,42 +53,36 @@ export class Renderer {
     const now = performance.now();
     const old = this.state;
 
-    // Game reset: clear all animations
-    if (state.walls.length === 0 && old.walls.length > 0) {
-      this.pawnAnim = null;
-      this.wallAnim = null;
-    } else {
-      // Detect pawn moves
-      for (const team of ["white", "black"] as const) {
-        const oldPos = old.players[team].pos;
-        const newPos = state.players[team].pos;
-        if (oldPos.x !== newPos.x || oldPos.y !== newPos.y) {
-          let startPx: number;
-          let startPy: number;
-          if (this.pawnAnim !== null && this.pawnAnim.team === team) {
-            // Chain from current interpolated position
-            const elapsed = now - this.pawnAnim.startTime;
-            const t = easeOutCubic(Math.min(elapsed / this.pawnAnim.duration, 1));
-            startPx = this.pawnAnim.startPx + (this.pawnAnim.endPx - this.pawnAnim.startPx) * t;
-            startPy = this.pawnAnim.startPy + (this.pawnAnim.endPy - this.pawnAnim.startPy) * t;
-          } else {
-            const from = cellCenter(oldPos);
-            startPx = from.px;
-            startPy = from.py;
-          }
-          const to = cellCenter(newPos);
-          this.pawnAnim = { team, startPx, startPy, endPx: to.px, endPy: to.py, startTime: now, duration: 200 };
+    // Detect pawn moves
+    for (const team of ["white", "black"] as const) {
+      const oldPos = old.players[team].pos;
+      const newPos = state.players[team].pos;
+      if (oldPos.x !== newPos.x || oldPos.y !== newPos.y) {
+        let startPx: number;
+        let startPy: number;
+        if (this.pawnAnim !== null && this.pawnAnim.team === team) {
+          // Chain from current interpolated position to avoid visual jump
+          ({ px: startPx, py: startPy } = evaluatePawnAnim(this.pawnAnim, now));
+        } else {
+          ({ px: startPx, py: startPy } = cellCenter(oldPos));
         }
+        const to = cellCenter(newPos);
+        this.pawnAnim = { team, startPx, startPy, endPx: to.px, endPy: to.py, startTime: now, duration: 200 };
       }
+    }
 
-      // Detect new wall
-      if (state.walls.length > old.walls.length) {
-        this.wallAnim = { wallIndex: state.walls.length - 1, startTime: now, duration: 150 };
-      }
+    // Detect new wall (walls are append-only during normal play)
+    if (state.walls.length > old.walls.length) {
+      this.wallAnim = { wallIndex: state.walls.length - 1, startTime: now, duration: 150 };
     }
 
     this.state = state;
     this.updateComputed(state);
+  }
+
+  resetAnimations(): void {
+    this.pawnAnim = null;
+    this.wallAnim = null;
   }
 
   private updateComputed(state: GameState): void {
@@ -138,6 +132,15 @@ export class Renderer {
 
   private draw(): void {
     const now = performance.now();
+
+    // Expire completed animations so they don't hold stale state indefinitely
+    if (this.pawnAnim !== null && now - this.pawnAnim.startTime >= this.pawnAnim.duration) {
+      this.pawnAnim = null;
+    }
+    if (this.wallAnim !== null && now - this.wallAnim.startTime >= this.wallAnim.duration) {
+      this.wallAnim = null;
+    }
+
     drawBoard(
       this.ctx,
       this.state,

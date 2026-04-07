@@ -24,9 +24,9 @@ function getState(): GameState {
 /** 97% of moves: 400–1000 ms (skewed toward lower end). 3%: 1000–2000 ms. */
 function aiThinkDelay(): number {
   const r = Math.random();
-  return r < 0.9
-    ? 400 + (r / 0.9) ** 2 * 600
-    : 1000 + ((r - 0.9) / 0.1) * 1000;
+  return r < 0.97
+    ? 400 + (r / 0.97) ** 2 * 600
+    : 1000 + ((r - 0.97) / 0.03) * 1000;
 }
 
 function scheduleAiMove(): void {
@@ -60,6 +60,7 @@ function reset(): void {
   }
   state = initialState();
   renderer.setState(state);
+  renderer.resetAnimations();
   renderer.setPreview(null);
   updatePanels(state);
   if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {

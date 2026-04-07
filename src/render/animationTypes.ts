@@ -17,5 +17,14 @@ export interface WallAnim {
 }
 
 export function easeOutCubic(t: number): number {
-  return 1 - Math.pow(1 - t, 3);
+  const inv = 1 - t;
+  return 1 - inv * inv * inv;
+}
+
+export function evaluatePawnAnim(anim: PawnAnim, now: number): { px: number; py: number } {
+  const t = easeOutCubic(Math.min((now - anim.startTime) / anim.duration, 1));
+  return {
+    px: anim.startPx + (anim.endPx - anim.startPx) * t,
+    py: anim.startPy + (anim.endPy - anim.startPy) * t,
+  };
 }
