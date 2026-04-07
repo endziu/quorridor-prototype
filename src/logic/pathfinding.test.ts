@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { playerHasPath } from "./pathfinding.ts";
+import { playerHasPath, getShortestPath } from "./pathfinding.ts";
 import { isEdgeBlocked } from "./walls.ts";
 import type { Cell, Wall } from "../types.ts";
 import { GRID_SIZE } from "../constants.ts";
@@ -128,5 +128,40 @@ describe("playerHasPath Advanced Scenarios", () => {
             expect(hasPathAfter).toBe(false);
         }
     }
+  });
+});
+
+describe("getShortestPath", () => {
+  test("returns shortest path on open board", () => {
+    const start: Cell = { x: 4, y: 8 };
+    const path = getShortestPath([], start, "white");
+    expect(path).not.toBeNull();
+    // Path should be 9 cells long (y=8 to y=0)
+    expect(path).toHaveLength(9);
+    expect(path![0]).toEqual(start);
+    expect(path![8].y).toBe(0);
+  });
+
+  test("returns null when blocked", () => {
+    const start: Cell = { x: 4, y: 8 };
+    const blockingRow: Wall[] = [
+      { pos: { x: 0, y: 4 }, orientation: "horizontal" },
+      { pos: { x: 2, y: 4 }, orientation: "horizontal" },
+      { pos: { x: 4, y: 4 }, orientation: "horizontal" },
+      { pos: { x: 6, y: 4 }, orientation: "horizontal" },
+      { pos: { x: 7, y: 4 }, orientation: "horizontal" },
+    ];
+    const path = getShortestPath(blockingRow, start, "white");
+    expect(path).toBeNull();
+  });
+
+  test("finds path around a wall", () => {
+    // Wall in front of white
+    const walls: Wall[] = [{ pos: { x: 4, y: 7 }, orientation: "horizontal" }];
+    const start: Cell = { x: 4, y: 8 };
+    const path = getShortestPath(walls, start, "white");
+    expect(path).not.toBeNull();
+    // Should go around the wall
+    expect(path!.length).toBeGreaterThan(9);
   });
 });
