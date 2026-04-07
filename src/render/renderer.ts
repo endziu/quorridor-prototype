@@ -71,6 +71,10 @@ export class Renderer {
     this.debugPaths = !this.debugPaths;
   }
 
+  get isDebugPaths(): boolean {
+    return this.debugPaths;
+  }
+
   get canvasElement(): HTMLCanvasElement {
     return this.canvas;
   }

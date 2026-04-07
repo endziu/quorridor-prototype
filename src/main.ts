@@ -3,15 +3,33 @@ import { dispatch } from "./state/stateMachine.ts";
 import { Renderer } from "./render/renderer.ts";
 import { attachKeyboard } from "./input/keyboard.ts";
 import { attachMouse } from "./input/mouse.ts";
-import type { GameAction, GameState } from "./types.ts";
+import type { GameAction, GameState, Team } from "./types.ts";
 import { WALLS_PER_PLAYER } from "./constants.ts";
+import { chooseAction } from "./ai/ai.ts";
+import type { Difficulty } from "./ai/ai.ts";
+
+/** Set to a Team to make that side AI-controlled, or null for human vs human. */
+const AI_TEAM: Team | null = "black";
+let aiDifficulty: Difficulty = "medium";
 
 let state: GameState = initialState();
+let aiPending = false;
 
 const renderer = new Renderer("screen", state);
 
 function getState(): GameState {
   return state;
+}
+
+function scheduleAiMove(): void {
+  if (aiPending) return;
+  aiPending = true;
+  setTimeout(() => {
+    aiPending = false;
+    if (state.phase.kind !== "playing") return;
+    if (state.phase.activeTeam !== AI_TEAM) return;
+    doDispatch(chooseAction(state, AI_TEAM, aiDifficulty));
+  }, 400);
 }
 
 function doDispatch(action: GameAction): void {
@@ -20,13 +38,20 @@ function doDispatch(action: GameAction): void {
   state = next;
   renderer.setState(state);
   updatePanels(state);
+  if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
+    scheduleAiMove();
+  }
 }
 
 function reset(): void {
+  aiPending = false;
   state = initialState();
   renderer.setState(state);
   renderer.setPreview(null);
   updatePanels(state);
+  if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
+    scheduleAiMove();
+  }
 }
 
 function updatePanels(s: GameState): void {
@@ -53,7 +78,35 @@ function updatePanels(s: GameState): void {
   }
 }
 
-attachKeyboard(reset, () => renderer.toggleDebugPaths());
+// ── Debug panel ────────────────────────────────────────────────────────────
+
+const debugPanel = document.getElementById("debug-panel");
+const difficultyButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-difficulty]"));
+
+function setDifficulty(d: Difficulty): void {
+  aiDifficulty = d;
+  for (const btn of difficultyButtons) {
+    btn.classList.toggle("active", btn.dataset["difficulty"] === d);
+  }
+}
+
+setDifficulty(aiDifficulty); // initialise button state
+
+for (const btn of difficultyButtons) {
+  btn.addEventListener("click", () => {
+    const d = btn.dataset["difficulty"] as Difficulty;
+    setDifficulty(d);
+  });
+}
+
+function toggleDebug(): void {
+  renderer.toggleDebugPaths();
+  debugPanel?.classList.toggle("visible", renderer.isDebugPaths);
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+
+attachKeyboard(reset, toggleDebug);
 attachMouse(
   renderer.canvasElement,
   getState,

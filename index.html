@@ -137,6 +137,60 @@
         margin: 10px 0;
       }
 
+      /* ── Debug panel ──────────────────────────────────────── */
+      #debug-panel {
+        display: none;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 16px;
+        background: #4a2e10;
+        border: 1px solid #6b3d18;
+        border-radius: 0 0 8px 8px;
+        border-top: 1px solid #3a2010;
+        margin-top: -1px;
+      }
+
+      #debug-panel.visible { display: flex; }
+
+      /* Remove white panel bottom rounding when debug panel is open */
+      .white-panel:has(+ #debug-panel.visible) {
+        border-radius: 0;
+        border-bottom: none;
+      }
+
+      .debug-label {
+        font-size: 11px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #8a7060;
+      }
+
+      .difficulty-btn {
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #8a7060;
+        background: none;
+        border: 1px solid #5a3a1a;
+        border-radius: 4px;
+        padding: 4px 12px;
+        cursor: pointer;
+        transition: color 0.15s, border-color 0.15s, background 0.15s;
+      }
+
+      .difficulty-btn:hover {
+        color: #d4a870;
+        border-color: #8d5e32;
+      }
+
+      .difficulty-btn.active {
+        color: #fdf8f0;
+        border-color: #c8864a;
+        background: #6d441e;
+      }
+
       /* ── Rules modal ───────────────────────────────────────── */
       #rules-backdrop {
         position: fixed;
@@ -309,6 +363,13 @@
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-white"></div>
         <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
+      </div>
+
+      <div id="debug-panel">
+        <span class="debug-label">AI difficulty</span>
+        <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
       </div>
     </div>
 
