@@ -42,11 +42,13 @@ function updatePanels(s: GameState): void {
 
     if (pips) {
       const wallsLeft = s.players[team].wallsLeft;
-      const html: string[] = [];
-      for (let i = 0; i < WALLS_PER_PLAYER; i++) {
-        html.push(`<div class="pip${i < wallsLeft ? "" : " used"}"></div>`);
-      }
-      pips.innerHTML = html.join("");
+      pips.replaceChildren(
+        ...Array.from({ length: WALLS_PER_PLAYER }, (_, i) => {
+          const pip = document.createElement("div");
+          pip.className = i < wallsLeft ? "pip" : "pip used";
+          return pip;
+        }),
+      );
     }
   }
 }
