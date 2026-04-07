@@ -1,5 +1,5 @@
 import { COLORS } from "../constants.ts";
-import type { Wall, WallPreview } from "../types.ts";
+import type { PlacedWall, Wall, WallPreview } from "../types.ts";
 import { horizontalWallRect, verticalWallRect } from "../utils/coords.ts";
 
 function wallPath(ctx: CanvasRenderingContext2D, wall: Wall): void {
@@ -12,10 +12,14 @@ function wallPath(ctx: CanvasRenderingContext2D, wall: Wall): void {
   ctx.roundRect(rect.x, rect.y, rect.w, rect.h, 3);
 }
 
-function drawPlacedWall(ctx: CanvasRenderingContext2D, wall: Wall): void {
+function drawPlacedWall(ctx: CanvasRenderingContext2D, wall: PlacedWall): void {
+  const isWhite = wall.placedBy === "white";
   wallPath(ctx, wall);
-  ctx.fillStyle = COLORS.wall;
+  ctx.fillStyle = isWhite ? COLORS.wallWhite : COLORS.wallBlack;
   ctx.fill();
+  ctx.strokeStyle = isWhite ? "rgba(255, 200, 130, 0.45)" : "rgba(180, 90, 30, 0.45)";
+  ctx.lineWidth = 1;
+  ctx.stroke();
 }
 
 function drawPreviewWall(ctx: CanvasRenderingContext2D, preview: WallPreview): void {
@@ -33,7 +37,7 @@ function drawPreviewWall(ctx: CanvasRenderingContext2D, preview: WallPreview): v
 
 export function drawWalls(
   ctx: CanvasRenderingContext2D,
-  walls: readonly Wall[],
+  walls: readonly PlacedWall[],
   preview: WallPreview | null,
 ): void {
   for (const wall of walls) {

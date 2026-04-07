@@ -24,6 +24,10 @@ export interface Wall {
   readonly orientation: WallOrientation;
 }
 
+export interface PlacedWall extends Wall {
+  readonly placedBy: Team;
+}
+
 export interface PlayerState {
   readonly pos: Cell;
   readonly wallsLeft: number;
@@ -35,7 +39,7 @@ export type GamePhase =
 
 export interface GameState {
   readonly players: Readonly<Record<Team, PlayerState>>;
-  readonly walls: readonly Wall[];
+  readonly walls: readonly PlacedWall[];
   readonly phase: GamePhase;
 }
 
