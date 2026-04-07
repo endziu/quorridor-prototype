@@ -32,6 +32,7 @@ function drawPreviewWall(ctx: CanvasRenderingContext2D, preview: WallPreview): v
   ctx.strokeStyle = `rgba(${baseColor}, 0.55)`;
   ctx.lineWidth = 1.5;
   ctx.stroke();
+  ctx.lineWidth = 1;
 }
 
 export function drawWalls(
