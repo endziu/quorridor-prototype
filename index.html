@@ -127,42 +127,20 @@
 
       .player-panel.active .controls-hint { color: #f5e6d3; }
 
-      /* ── Canvas ────────────────────────────────────────────── */
-      canvas {
-        display: block;
-        cursor: crosshair;
-        background: #3a2510; /* Dark walnut base */
-        border-radius: 12px;
-        box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.3);
-        margin: 10px 0;
-      }
-
-      /* ── Debug panel ──────────────────────────────────────── */
-      #debug-panel {
-        display: none;
+      /* ── Difficulty row ────────────────────────────────────── */
+      .difficulty-row {
+        display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 8px 16px;
-        background: #4a2e10;
-        border: 1px solid #6b3d18;
-        border-radius: 0 0 8px 8px;
-        border-top: 1px solid #3a2010;
-        margin-top: -1px;
+        gap: 6px;
+        margin-left: auto;
       }
 
-      #debug-panel.visible { display: flex; }
-
-      /* Remove white panel bottom rounding when debug panel is open */
-      .white-panel:has(+ #debug-panel.visible) {
-        border-radius: 0;
-        border-bottom: none;
-      }
-
-      .debug-label {
+      .difficulty-label {
         font-size: 11px;
         letter-spacing: 2px;
         text-transform: uppercase;
         color: #8a7060;
+        margin-right: 2px;
       }
 
       .difficulty-btn {
@@ -189,6 +167,16 @@
         color: #fdf8f0;
         border-color: #c8864a;
         background: #6d441e;
+      }
+
+      /* ── Canvas ────────────────────────────────────────────── */
+      canvas {
+        display: block;
+        cursor: crosshair;
+        background: #3a2510; /* Dark walnut base */
+        border-radius: 12px;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.3);
+        margin: 10px 0;
       }
 
       /* ── Rules modal ───────────────────────────────────────── */
@@ -391,15 +379,13 @@
         <span class="player-name">WHITE</span>
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-white"></div>
-        <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
+        <div class="difficulty-row">
+          <span class="difficulty-label">AI</span>
+          <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+          <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+          <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
         <button class="info-btn" aria-label="Show rules">🛈</button>
-      </div>
-
-      <div id="debug-panel">
-        <span class="debug-label">AI difficulty</span>
-        <button class="difficulty-btn" data-difficulty="easy">Easy</button>
-        <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-        <button class="difficulty-btn" data-difficulty="hard">Hard</button>
       </div>
     </div>
 

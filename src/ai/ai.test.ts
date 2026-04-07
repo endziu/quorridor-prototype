@@ -7,6 +7,7 @@ describe("AI", () => {
   test("evaluate - white closer to goal has higher score", () => {
     const state: GameState = {
       ...initialState(),
+      phase: { kind: "playing", activeTeam: "white" },
       players: {
         white: { pos: { x: 4, y: 4 }, wallsLeft: 10 },
         black: { pos: { x: 4, y: 0 }, wallsLeft: 10 },
@@ -46,6 +47,7 @@ describe("AI", () => {
   test("chooseAction - respects wallsLeft", () => {
     const state: GameState = {
       ...initialState(),
+      phase: { kind: "playing", activeTeam: "white" },
       players: {
         white: { pos: { x: 4, y: 8 }, wallsLeft: 0 },
         black: { pos: { x: 4, y: 0 }, wallsLeft: 10 },
@@ -56,7 +58,9 @@ describe("AI", () => {
   });
 
   test("difficulty - easy/medium filters wall candidates", () => {
-    const state = initialState();
+    const base = initialState();
+    // chooseAction requires it to be the AI team's turn (stateMachine rejects off-turn actions).
+    const state: GameState = { ...base, phase: { kind: "playing", activeTeam: "black" } };
     // In easy mode, AI should only consider walls that block the opponent's current shortest path.
     // This is hard to test directly without exporting wallCandidates,
     // but we can check if it at least doesn't crash and returns a valid action.
@@ -70,7 +74,7 @@ describe("AI", () => {
   test("chooseAction - prefers move over wall if scores are equal", () => {
     // On a fresh board, many walls might have the same score as a move (if they don't change path lengths).
     // The AI should prefer moving forward.
-    const state = initialState();
+    const state: GameState = { ...initialState(), phase: { kind: "playing", activeTeam: "white" } };
     const action = chooseAction(state, "white", "hard");
     expect(action.type).toBe("MOVE");
   });
