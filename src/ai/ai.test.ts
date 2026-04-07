@@ -71,6 +71,7 @@ describe("AI", () => {
     const state: GameState = {
       ...initialState(),
       phase: { kind: "playing", activeTeam: "white" },
+      turnCount: 15, // Ensure we are past the opening to trigger blunders
     };
     
     // Call chooseAction many times for easy difficulty.
@@ -81,9 +82,25 @@ describe("AI", () => {
       actions.add(JSON.stringify(action));
     }
     
-    // On a fresh board, there are 5 legal moves and many walls.
     // With 40% random move chance and random walls, we should see more than 1 distinct action.
     expect(actions.size).toBeGreaterThan(1);
+  });
+
+  test("difficulty - easy is deterministic in opening", () => {
+    // Before turn 12 and with no walls, easy difficulty should be deterministic (best move).
+    const state: GameState = {
+      ...initialState(),
+      phase: { kind: "playing", activeTeam: "white" },
+      turnCount: 0,
+    };
+    
+    const actions = new Set<string>();
+    for (let i = 0; i < 20; i++) {
+      const action = chooseAction(state, "white", "easy");
+      actions.add(JSON.stringify(action));
+    }
+    
+    expect(actions.size).toBe(1);
   });
 
   test("chooseAction - prefers move over wall if scores are equal", () => {

@@ -77,8 +77,11 @@ function wallCandidates(state: GameState, aiTeam: Team, difficulty: Difficulty):
  * Prefers pawn moves over wall placements when scores are equal (preserves wall budget).
  */
 export function chooseAction(state: GameState, team: Team, difficulty: Difficulty): GameAction {
-  // Easy difficulty blunder: 40% chance to just pick a random move or a random wall
-  if (difficulty === "easy" && Math.random() < 0.4) {
+  // Easy difficulty blunder: 40% chance to just pick a random move or a random wall.
+  // We only start blundering after the "opening" phase (turn 12) to make it feel more like 
+  // the AI is losing focus as the game gets complex, rather than being incompetent from turn 1.
+  const isMidGame = state.turnCount >= 12 || state.walls.length >= 6;
+  if (difficulty === "easy" && isMidGame && Math.random() < 0.4) {
     const moves = getLegalMoves(state, team);
     const wallsLeft = state.players[team].wallsLeft;
     

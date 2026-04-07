@@ -42,6 +42,7 @@ export interface GameState {
   readonly players: Readonly<Record<Team, PlayerState>>;
   readonly walls: readonly PlacedWall[];
   readonly phase: GamePhase;
+  readonly turnCount: number;
 }
 
 export type GameAction =

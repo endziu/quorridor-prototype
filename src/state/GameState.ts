@@ -9,5 +9,6 @@ export function initialState(): GameState {
     },
     walls: [],
     phase: { kind: "starting", startingTeam: Math.random() < 0.5 ? "white" : "black" },
+    turnCount: 0,
   };
 }

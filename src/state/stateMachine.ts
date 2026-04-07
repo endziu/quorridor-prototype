@@ -39,6 +39,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         phase: won
           ? { kind: "won", winner: action.team }
           : { kind: "playing", activeTeam: flipTeam(action.team) },
+        turnCount: state.turnCount + 1,
       };
     }
 
@@ -56,6 +57,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         },
         walls: [...state.walls, { ...action.wall, placedBy: action.team }],
         phase: { kind: "playing", activeTeam: flipTeam(action.team) },
+        turnCount: state.turnCount + 1,
       };
     }
 
