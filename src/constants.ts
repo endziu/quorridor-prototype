@@ -6,11 +6,14 @@ export const CELL_PX = 70;
 /** Pixel size of the gap between cells (wall slot area). */
 export const GAP_PX = 15;
 
+/** Padding around the entire grid. */
+export const BOARD_PADDING = GAP_PX * 2;
+
 /** Distance between the origins of two adjacent cells. */
 export const CELL_STRIDE = CELL_PX + GAP_PX; // 85
 
-/** Total canvas size: 9 cells + 8 gaps (no trailing gap after the last cell). */
-export const CANVAS_PX = GRID_SIZE * CELL_PX + (GRID_SIZE - 1) * GAP_PX; // 750
+/** Total canvas size: 9 cells + 8 gaps + padding on both sides. */
+export const CANVAS_PX = (GRID_SIZE * CELL_PX) + ((GRID_SIZE - 1) * GAP_PX) + (BOARD_PADDING * 2); // 810
 
 /** Walls per player at game start. */
 export const WALLS_PER_PLAYER = 10;

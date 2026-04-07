@@ -1,4 +1,4 @@
-import { CANVAS_PX, CELL_PX, CELL_STRIDE, COLORS, GAP_PX, GRID_SIZE } from "../constants.ts";
+import { BOARD_PADDING, CANVAS_PX, CELL_PX, CELL_STRIDE, COLORS, GAP_PX, GRID_SIZE } from "../constants.ts";
 import type { Cell, GameState } from "../types.ts";
 import { cellOrigin } from "../utils/coords.ts";
 
@@ -13,16 +13,18 @@ export function drawBoard(
   ctx.fillRect(0, 0, CANVAS_PX, CANVAS_PX);
 
   // Draw gap regions (wall slot indicators)
+  const gridSpan = GRID_SIZE * CELL_PX + (GRID_SIZE - 1) * GAP_PX;
   ctx.fillStyle = COLORS.wallSlot;
   for (let i = 0; i < GRID_SIZE - 1; i++) {
+    const offset = BOARD_PADDING + (i * CELL_STRIDE) + CELL_PX;
     // Horizontal gap below row i
-    ctx.fillRect(0, i * CELL_STRIDE + CELL_PX, CANVAS_PX, GAP_PX);
+    ctx.fillRect(BOARD_PADDING, offset, gridSpan, GAP_PX);
     // Vertical gap right of col i
-    ctx.fillRect(i * CELL_STRIDE + CELL_PX, 0, GAP_PX, CANVAS_PX);
+    ctx.fillRect(offset, BOARD_PADDING, GAP_PX, gridSpan);
   }
 
   // Draw cells
-  for (let x = 0; x < GRID_SIZE; x++) {
+...
     for (let y = 0; y < GRID_SIZE; y++) {
       const { px, py } = cellOrigin({ x, y });
       const isLegal = legalMoves.some((c) => c.x === x && c.y === y);
