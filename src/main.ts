@@ -8,6 +8,9 @@ import type { GameAction, GameState, Team } from "./types.ts";
 import { WALLS_PER_PLAYER } from "./constants.ts";
 import { chooseAction } from "./ai/ai.ts";
 import type { Difficulty } from "./ai/ai.ts";
+import { saveGame } from "./recording/storage.ts";
+import { buildReplayStates } from "./recording/replay.ts";
+import type { SavedGame } from "./recording/types.ts";
 
 /** Set to a Team to make that side AI-controlled, or null for human vs human. */
 const AI_TEAM: Team | null = "black";
@@ -17,6 +20,9 @@ let currentDuo = FAMOUS_DUOS[Math.floor(Math.random() * FAMOUS_DUOS.length)]!;
 let state: GameState = initialState();
 let aiPendingTimer: ReturnType<typeof setTimeout> | null = null;
 let animationInterval: ReturnType<typeof setInterval> | null = null;
+
+let recordedSeed: GameState = state;
+let recordedActions: GameAction[] = [];
 
 const renderer = new Renderer("screen", state);
 
@@ -48,11 +54,31 @@ function doDispatch(action: GameAction): void {
   const next = dispatch(state, action);
   if (next === state) return;
   state = next;
+  recordedActions.push(action);
   renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
   updatePanels(state);
-  if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
+  if (state.phase.kind === "won") {
+    onGameWon();
+  } else if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
     scheduleAiMove();
   }
+}
+
+function onGameWon(): void {
+  const winner = state.phase.kind === "won" ? state.phase.winner : null;
+  if (!winner) return;
+
+  const statesCopy = buildReplayStates(recordedSeed, recordedActions);
+  const game: SavedGame = {
+    id: crypto.randomUUID(),
+    date: Date.now(),
+    seed: recordedSeed,
+    actions: recordedActions,
+    winner,
+    turnCount: state.turnCount,
+    duoNames: [currentDuo[0], currentDuo[1]],
+  };
+  saveGame(game);
 }
 
 function playStartAnimation(): void {
@@ -99,6 +125,8 @@ function reset(): void {
     animationInterval = null;
   }
   state = initialState();
+  recordedSeed = state;
+  recordedActions = [];
   currentDuo = FAMOUS_DUOS[Math.floor(Math.random() * FAMOUS_DUOS.length)]!;
   renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
   renderer.resetAnimations();
