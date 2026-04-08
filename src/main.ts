@@ -8,7 +8,7 @@ import type { GameAction, GameState, Team } from "./types.ts";
 import { WALLS_PER_PLAYER } from "./constants.ts";
 import { chooseAction } from "./ai/ai.ts";
 import type { Difficulty } from "./ai/ai.ts";
-import { saveGame } from "./recording/storage.ts";
+import { saveGame, loadGames } from "./recording/storage.ts";
 import { buildReplayStates } from "./recording/replay.ts";
 import type { SavedGame } from "./recording/types.ts";
 
@@ -317,6 +317,91 @@ if (replayResume) {
     exitScrubMode();
     renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
     updatePanels(state);
+  });
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+
+const historyBtn = document.getElementById("history-btn");
+const historyBackdrop = document.getElementById("history-backdrop");
+const historyClose = document.getElementById("history-close");
+
+function openHistory(): void {
+  if (!historyBackdrop) return;
+  const games = loadGames();
+  const historyList = document.getElementById("history-list");
+  if (!historyList) return;
+
+  historyList.innerHTML = "";
+
+  if (games.length === 0) {
+    historyList.innerHTML = '<div class="history-empty">No games recorded yet</div>';
+    historyBackdrop.classList.remove("hidden");
+    return;
+  }
+
+  for (const game of games) {
+    const date = new Date(game.date);
+    const dateStr = date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const winner = game.winner.toUpperCase();
+    const names = `${game.duoNames[0].toUpperCase()} vs ${game.duoNames[1].toUpperCase()}`;
+
+    const item = document.createElement("div");
+    item.className = "history-item";
+    item.innerHTML = `
+      <div class="history-item-info">
+        <div class="history-item-date">${dateStr}</div>
+        <div class="history-item-details">
+          <span>${names}</span>
+          <span class="history-item-winner">Won: ${winner}</span>
+          <span class="history-item-turns">Turns: ${game.turnCount}</span>
+        </div>
+      </div>
+      <button class="history-item-watch">Watch</button>
+    `;
+
+    const watchBtn = item.querySelector(".history-item-watch");
+    if (watchBtn) {
+      watchBtn.addEventListener("click", () => {
+        loadReplay(game);
+      });
+    }
+
+    historyList.appendChild(item);
+  }
+
+  historyBackdrop.classList.remove("hidden");
+}
+
+function closeHistory(): void {
+  if (!historyBackdrop) return;
+  historyBackdrop.classList.add("hidden");
+}
+
+function loadReplay(game: SavedGame): void {
+  closeHistory();
+  recordedSeed = game.seed;
+  recordedActions = Array.from(game.actions);
+  currentDuo = [game.duoNames[0], game.duoNames[1]] as typeof currentDuo;
+  scrubStates = buildReplayStates(game.seed, game.actions);
+  scrubIndex = scrubStates.length - 1;
+  scrubShowResume = false;
+  updateReplayControls();
+  renderer.setState(scrubStates[scrubIndex]!, { white: currentDuo[0], black: currentDuo[1] });
+  updatePanels(scrubStates[scrubIndex]!);
+}
+
+if (historyBtn) {
+  historyBtn.addEventListener("click", openHistory);
+}
+
+if (historyClose) {
+  historyClose.addEventListener("click", closeHistory);
+}
+
+if (historyBackdrop) {
+  historyBackdrop.addEventListener("click", (e) => {
+    if (e.target === historyBackdrop) closeHistory();
   });
 }
 
