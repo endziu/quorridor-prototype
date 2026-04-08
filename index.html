@@ -500,7 +500,7 @@
         text-align: center;
       }
 
-      #replay-prev, #replay-next {
+      #replay-first, #replay-prev, #replay-next, #replay-last {
         background: #7d4e22;
         border: 1px solid #8d5e32;
         border-radius: 4px;
@@ -511,7 +511,12 @@
         transition: background 0.15s, border-color 0.15s;
       }
 
-      #replay-prev:hover, #replay-next:hover {
+      #replay-first, #replay-last {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+
+      #replay-first:hover, #replay-prev:hover, #replay-next:hover, #replay-last:hover {
         background: #8d5e32;
         border-color: #9d6e42;
       }
@@ -725,9 +730,11 @@
       </div>
 
       <div id="replay-controls" class="replay-controls">
+        <button id="replay-first">⏮</button>
         <button id="replay-prev">◀</button>
         <span id="replay-counter">Turn 0 / 0</span>
         <button id="replay-next">▶</button>
+        <button id="replay-last">⏭</button>
         <button id="replay-resume">Resume game</button>
       </div>
 

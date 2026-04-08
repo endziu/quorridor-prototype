@@ -181,6 +181,7 @@ function updateReplayControls(): void {
   const replayControls = document.getElementById("replay-controls");
   const replayCounter = document.getElementById("replay-counter");
   const replayResume = document.getElementById("replay-resume");
+  const randomizeBtn = document.getElementById("randomize-btn");
   if (!replayControls) return;
   replayControls.style.display = scrubStates ? "flex" : "none";
   if (replayCounter && scrubStates) {
@@ -189,11 +190,16 @@ function updateReplayControls(): void {
   if (replayResume) {
     replayResume.style.display = scrubShowResume ? "block" : "none";
   }
+  if (randomizeBtn) {
+    randomizeBtn.style.display = scrubStates ? "none" : "block";
+  }
 }
 
 function hideReplayControls(): void {
   const replayControls = document.getElementById("replay-controls");
   if (replayControls) replayControls.style.display = "none";
+  const randomizeBtn = document.getElementById("randomize-btn");
+  if (randomizeBtn) randomizeBtn.style.display = "block";
 }
 
 function updatePanels(s: GameState): void {
@@ -301,9 +307,17 @@ updatePanels(state);
 
 // ──────────────────────────────────────────────────────────────────────────
 
+const replayFirst = document.getElementById("replay-first");
 const replayPrev = document.getElementById("replay-prev");
 const replayNext = document.getElementById("replay-next");
+const replayLast = document.getElementById("replay-last");
 const replayResume = document.getElementById("replay-resume");
+
+if (replayFirst) {
+  replayFirst.addEventListener("click", () => {
+    if (scrubStates !== null) scrubTo(0);
+  });
+}
 
 if (replayPrev) {
   replayPrev.addEventListener("click", () => {
@@ -314,6 +328,12 @@ if (replayPrev) {
 if (replayNext) {
   replayNext.addEventListener("click", () => {
     if (scrubStates !== null) scrubTo(scrubIndex + 1);
+  });
+}
+
+if (replayLast) {
+  replayLast.addEventListener("click", () => {
+    if (scrubStates !== null) scrubTo(scrubStates.length - 1);
   });
 }
 
@@ -387,7 +407,7 @@ function loadReplay(game: SavedGame): void {
   recordedActions = Array.from(game.actions);
   currentDuo = [game.duoNames[0], game.duoNames[1]] as typeof currentDuo;
   scrubStates = buildReplayStates(game.seed, game.actions);
-  scrubIndex = scrubStates.length - 1;
+  scrubIndex = 0;
   scrubShowResume = false;
   updateReplayControls();
   renderer.setState(scrubStates[scrubIndex]!, { white: currentDuo[0], black: currentDuo[1] });
