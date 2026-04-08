@@ -62,7 +62,6 @@ function doDispatch(action: GameAction): void {
   recordedActions.push(action);
   renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
   updatePanels(state);
-  updateUndoButtonState();
   if (state.phase.kind === "won") {
     onGameWon();
   } else if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
@@ -139,7 +138,6 @@ function reset(): void {
   renderer.resetAnimations();
   renderer.setPreview(null);
   updatePanels(state);
-  updateUndoButtonState();
 }
 
 function enterScrubMode(index: number, showResume: boolean): void {
@@ -149,7 +147,6 @@ function enterScrubMode(index: number, showResume: boolean): void {
   scrubIndex = Math.max(0, Math.min(index, scrubStates.length - 1));
   scrubShowResume = showResume;
   updateReplayControls();
-  updateUndoButtonState();
   scrubTo(scrubIndex);
 }
 
@@ -158,7 +155,18 @@ function exitScrubMode(): void {
   scrubIndex = 0;
   scrubShowResume = false;
   hideReplayControls();
-  updateUndoButtonState();
+}
+
+function resumeFromScrub(): void {
+  if (scrubStates === null || !scrubShowResume) return;
+  recordedActions = recordedActions.slice(0, scrubIndex);
+  state = scrubStates[scrubIndex]!;
+  exitScrubMode();
+  renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
+  updatePanels(state);
+  if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
+    scheduleAiMove();
+  }
 }
 
 function scrubTo(index: number): void {
@@ -276,9 +284,7 @@ document.addEventListener("keydown", (e) => {
       enterScrubMode(recordedActions.length, true);
     }
   } else if (e.code === "Escape" && scrubStates !== null && scrubShowResume) {
-    exitScrubMode();
-    renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
-    updatePanels(state);
+    resumeFromScrub();
   }
 });
 
@@ -313,10 +319,7 @@ if (replayNext) {
 
 if (replayResume) {
   replayResume.addEventListener("click", () => {
-    exitScrubMode();
-    updateUndoButtonState();
-    renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
-    updatePanels(state);
+    resumeFromScrub();
   });
 }
 
@@ -387,7 +390,6 @@ function loadReplay(game: SavedGame): void {
   scrubIndex = scrubStates.length - 1;
   scrubShowResume = false;
   updateReplayControls();
-  updateUndoButtonState();
   renderer.setState(scrubStates[scrubIndex]!, { white: currentDuo[0], black: currentDuo[1] });
   updatePanels(scrubStates[scrubIndex]!);
 }
@@ -405,63 +407,6 @@ if (historyBackdrop) {
     if (e.target === historyBackdrop) closeHistory();
   });
 }
-
-// ──────────────────────────────────────────────────────────────────────────
-
-const undoBtn = document.getElementById("undo-btn") as HTMLButtonElement | null;
-
-function updateUndoButtonState(): void {
-  if (!undoBtn) return;
-  if (AI_TEAM === null) {
-    undoBtn.disabled = true;
-    return;
-  }
-  const humanTeam = AI_TEAM === "black" ? "white" : "black";
-  const hasHumanMove = recordedActions.some((a: GameAction) => a.type !== "START_GAME" && a.team === humanTeam);
-  const canUndo = hasHumanMove && scrubStates === null && state.phase.kind === "playing";
-  undoBtn.disabled = !canUndo;
-}
-
-function undoLastMove(): void {
-  if (scrubStates !== null) return;
-  if (recordedActions.length === 0) return;
-  if (state.phase.kind !== "playing") return;
-  if (AI_TEAM === null) return;
-
-  const humanTeam = AI_TEAM === "black" ? "white" : "black";
-
-  let humanMoveIndex = -1;
-  for (let i = recordedActions.length - 1; i >= 0; i--) {
-    const action = recordedActions[i]!;
-    if (action.type !== "START_GAME" && action.team === humanTeam) {
-      humanMoveIndex = i;
-      break;
-    }
-  }
-  if (humanMoveIndex === -1) return;
-
-  if (aiPendingTimer !== null) {
-    clearTimeout(aiPendingTimer);
-    aiPendingTimer = null;
-    renderer.setAiThinking(null);
-  }
-
-  recordedActions.splice(humanMoveIndex, 1);
-  state = recordedActions.length === 0 ? recordedSeed : recordedActions.reduce(dispatch, recordedSeed);
-  renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
-  updatePanels(state);
-  updateUndoButtonState();
-
-  if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
-    scheduleAiMove();
-  }
-}
-
-if (undoBtn) {
-  undoBtn.addEventListener("click", undoLastMove);
-}
-
-updateUndoButtonState();
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {

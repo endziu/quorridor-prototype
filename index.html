@@ -130,22 +130,7 @@
 
       .player-panel.active .controls-hint { color: #f5e6d3; }
 
-      /* ── Difficulty row ────────────────────────────────────── */
-      .difficulty-row {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-left: auto;
-      }
-
-      .difficulty-label {
-        font-size: 11px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: #8a7060;
-        margin-right: 2px;
-      }
-
+      /* ── Difficulty buttons (used inside settings panel) ───── */
       .difficulty-btn {
         font-family: 'Courier New', monospace;
         font-size: 12px;
@@ -156,21 +141,136 @@
         background: none;
         border: 1px solid #5a3a1a;
         border-radius: 4px;
-        padding: 4px 12px;
+        padding: 5px 0;
+        flex: 1;
         cursor: pointer;
-        transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.15s;
+        transition: color 0.15s, border-color 0.15s, background 0.15s;
       }
 
       .difficulty-btn:hover {
         color: #d4a870;
         border-color: #8d5e32;
-        transform: translateY(-1px);
       }
 
       .difficulty-btn.active {
         color: #4fd1c5;
         border-color: #4fd1c5;
         background: rgba(79, 209, 197, 0.1);
+      }
+
+      /* ── Settings gear button ──────────────────────────────── */
+      #settings-container {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 200;
+      }
+
+      #settings-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #6d441e;
+        border: 1px solid #7d4e22;
+        color: #b5a48e;
+        font-size: 18px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      }
+
+      #settings-btn:hover {
+        background: #7d4e22;
+        border-color: #9d6e42;
+        color: #fdf8f0;
+        transform: rotate(30deg);
+      }
+
+      #settings-btn.open {
+        background: #7d4e22;
+        border-color: #9d6e42;
+        color: #fdf8f0;
+        transform: rotate(60deg);
+      }
+
+      /* ── Settings panel ────────────────────────────────────── */
+      #settings-panel {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        width: 230px;
+        background: #6d441e;
+        border: 1px solid #8d5e32;
+        border-radius: 10px;
+        padding: 16px;
+        box-shadow: 0 8px 28px rgba(0,0,0,0.45);
+        transform-origin: top right;
+        transform: scale(0.92) translateY(-8px);
+        opacity: 0;
+        visibility: hidden;
+        transition: transform 0.18s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+                    opacity 0.18s ease,
+                    visibility 0.18s;
+      }
+
+      #settings-panel.open {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .settings-section-label {
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #8a7060;
+        margin-bottom: 8px;
+      }
+
+      .settings-difficulty-row {
+        display: flex;
+        gap: 4px;
+      }
+
+      .settings-divider {
+        height: 1px;
+        background: rgba(255,255,255,0.08);
+        margin: 14px 0;
+      }
+
+      .settings-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        background: none;
+        border: none;
+        border-radius: 6px;
+        padding: 9px 10px;
+        color: #e5d6c3;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        text-align: left;
+      }
+
+      .settings-action-btn:hover {
+        background: rgba(255,255,255,0.06);
+        color: #fdf8f0;
+      }
+
+      .settings-action-icon {
+        font-size: 16px;
+        width: 20px;
+        text-align: center;
+        flex-shrink: 0;
       }
 
       /* ── Canvas ────────────────────────────────────────────── */
@@ -366,20 +466,6 @@
         transform: translateY(-1px) scale(1.02);
       }
 
-      .info-btn {
-        background: none;
-        border: none;
-        color: #b5a48e;
-        font-size: 15px;
-        line-height: 1;
-        padding: 0 0 0 8px;
-        cursor: pointer;
-        opacity: 0.5;
-        transition: opacity 0.2s;
-        flex-shrink: 0;
-      }
-      .info-btn:hover { opacity: 1; }
-
       .copyright-link {
         position: fixed;
         bottom: 12px;
@@ -446,33 +532,6 @@
         background: #5fd9cd;
       }
 
-      .undo-btn, .history-btn {
-        font-family: 'Courier New', monospace;
-        font-size: 12px;
-        font-weight: bold;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        color: #8a7060;
-        background: none;
-        border: 1px solid #5a3a1a;
-        border-radius: 4px;
-        padding: 4px 12px;
-        cursor: pointer;
-        transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.15s;
-      }
-
-      .undo-btn:hover, .history-btn:hover {
-        color: #d4a870;
-        border-color: #8d5e32;
-        transform: translateY(-1px);
-      }
-
-      .undo-btn:disabled {
-        color: #6a5040;
-        border-color: #4a3a1a;
-        cursor: not-allowed;
-        opacity: 0.5;
-      }
 
       /* ── History modal ─────────────────────────────────────── */
       #history-backdrop {
@@ -654,13 +713,6 @@
         <span class="player-name">BLACK</span>
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-black"></div>
-        <div class="difficulty-row">
-          <span class="difficulty-label">AI</span>
-          <button class="difficulty-btn" data-difficulty="easy">Easy</button>
-          <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-          <button class="difficulty-btn" data-difficulty="hard">Hard</button>
-        </div>
-        <button class="info-btn" aria-label="Show rules">🛈</button>
       </div>
 
       <div class="canvas-container">
@@ -683,10 +735,27 @@
         <span class="player-name">WHITE</span>
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-white"></div>
-        <button id="undo-btn" class="undo-btn" title="Undo last move">↶ Undo</button>
-        <button id="history-btn" class="history-btn">History</button>
         <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
-        <button class="info-btn" aria-label="Show rules">🛈</button>
+      </div>
+    </div>
+
+    <!-- Settings gear + panel -->
+    <div id="settings-container">
+      <button id="settings-btn" aria-label="Settings">⚙</button>
+      <div id="settings-panel">
+        <div class="settings-section-label">AI Difficulty</div>
+        <div class="settings-difficulty-row">
+          <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+          <button class="difficulty-btn" data-difficulty="medium">Med</button>
+          <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+        <div class="settings-divider"></div>
+        <button id="history-btn" class="settings-action-btn">
+          <span class="settings-action-icon">⌚</span>Game history
+        </button>
+        <button id="settings-rules-btn" class="settings-action-btn">
+          <span class="settings-action-icon">🛈</span>Rules
+        </button>
       </div>
     </div>
 
@@ -709,15 +778,56 @@
         backdrop.classList.add('hidden');
       }
 
-      document.querySelectorAll('.info-btn').forEach(btn => {
-        btn.addEventListener('click', () => backdrop?.classList.remove('hidden'));
-      });
-
       playBtn?.addEventListener('click', () => {
         if (checkbox instanceof HTMLInputElement && checkbox.checked) {
           localStorage.setItem(STORAGE_KEY, 'true');
         }
         backdrop?.classList.add('hidden');
+      });
+
+      // Settings panel toggle
+      const settingsBtn = document.getElementById('settings-btn');
+      const settingsPanel = document.getElementById('settings-panel');
+
+      function openSettings() {
+        settingsPanel?.classList.add('open');
+        settingsBtn?.classList.add('open');
+      }
+
+      function closeSettings() {
+        settingsPanel?.classList.remove('open');
+        settingsBtn?.classList.remove('open');
+      }
+
+      settingsBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (settingsPanel?.classList.contains('open')) {
+          closeSettings();
+        } else {
+          openSettings();
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (settingsPanel?.classList.contains('open') &&
+            !settingsPanel.contains(e.target) &&
+            e.target !== settingsBtn) {
+          closeSettings();
+        }
+      });
+
+      // Rules button inside settings
+      document.getElementById('settings-rules-btn')?.addEventListener('click', () => {
+        closeSettings();
+        backdrop?.classList.remove('hidden');
+      });
+
+      // Close settings when history is clicked (action handled by main.ts)
+      document.getElementById('history-btn')?.addEventListener('click', closeSettings);
+
+      // Close settings when a difficulty is picked
+      document.querySelectorAll('[data-difficulty]').forEach(btn => {
+        btn.addEventListener('click', closeSettings);
       });
     </script>
 
