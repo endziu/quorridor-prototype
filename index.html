@@ -446,7 +446,7 @@
         background: #5fd9cd;
       }
 
-      .history-btn {
+      .undo-btn, .history-btn {
         font-family: 'Courier New', monospace;
         font-size: 12px;
         font-weight: bold;
@@ -461,10 +461,17 @@
         transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.15s;
       }
 
-      .history-btn:hover {
+      .undo-btn:hover, .history-btn:hover {
         color: #d4a870;
         border-color: #8d5e32;
         transform: translateY(-1px);
+      }
+
+      .undo-btn:disabled {
+        color: #6a5040;
+        border-color: #4a3a1a;
+        cursor: not-allowed;
+        opacity: 0.5;
       }
 
       /* ── History modal ─────────────────────────────────────── */
@@ -676,6 +683,7 @@
         <span class="player-name">WHITE</span>
         <span class="walls-label">walls</span>
         <div class="walls-pips" id="pips-white"></div>
+        <button id="undo-btn" class="undo-btn" title="Undo last move">↶ Undo</button>
         <button id="history-btn" class="history-btn">History</button>
         <span class="controls-hint">click to move &nbsp;·&nbsp; click gap to place wall</span>
         <button class="info-btn" aria-label="Show rules">🛈</button>
