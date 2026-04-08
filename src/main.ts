@@ -23,6 +23,9 @@ let animationInterval: ReturnType<typeof setInterval> | null = null;
 
 let recordedSeed: GameState = state;
 let recordedActions: GameAction[] = [];
+let scrubStates: GameState[] | null = null;
+let scrubIndex = 0;
+let scrubShowResume = false;
 
 const renderer = new Renderer("screen", state);
 
@@ -39,6 +42,7 @@ function aiThinkDelay(): number {
 }
 
 function scheduleAiMove(): void {
+  if (scrubStates !== null) return;
   if (aiPendingTimer !== null) return;
   renderer.setAiThinking(AI_TEAM);
   aiPendingTimer = setTimeout(() => {
@@ -124,6 +128,7 @@ function reset(): void {
     clearInterval(animationInterval);
     animationInterval = null;
   }
+  exitScrubMode();
   state = initialState();
   recordedSeed = state;
   recordedActions = [];
@@ -132,6 +137,50 @@ function reset(): void {
   renderer.resetAnimations();
   renderer.setPreview(null);
   updatePanels(state);
+}
+
+function enterScrubMode(index: number, showResume: boolean): void {
+  if (scrubStates === null) {
+    scrubStates = buildReplayStates(recordedSeed, recordedActions);
+  }
+  scrubIndex = Math.max(0, Math.min(index, scrubStates.length - 1));
+  scrubShowResume = showResume;
+  updateReplayControls();
+  scrubTo(scrubIndex);
+}
+
+function exitScrubMode(): void {
+  scrubStates = null;
+  scrubIndex = 0;
+  scrubShowResume = false;
+  hideReplayControls();
+}
+
+function scrubTo(index: number): void {
+  if (scrubStates === null) return;
+  scrubIndex = Math.max(0, Math.min(index, scrubStates.length - 1));
+  renderer.resetAnimations();
+  renderer.setState(scrubStates[scrubIndex]!, { white: currentDuo[0], black: currentDuo[1] });
+  updateReplayControls();
+}
+
+function updateReplayControls(): void {
+  const replayControls = document.getElementById("replay-controls");
+  const replayCounter = document.getElementById("replay-counter");
+  const replayResume = document.getElementById("replay-resume");
+  if (!replayControls) return;
+  replayControls.style.display = scrubStates ? "flex" : "none";
+  if (replayCounter && scrubStates) {
+    replayCounter.textContent = `Turn ${scrubIndex} / ${scrubStates.length - 1}`;
+  }
+  if (replayResume) {
+    replayResume.style.display = scrubShowResume ? "block" : "none";
+  }
+}
+
+function hideReplayControls(): void {
+  const replayControls = document.getElementById("replay-controls");
+  if (replayControls) replayControls.style.display = "none";
 }
 
 function updatePanels(s: GameState): void {
@@ -206,16 +255,70 @@ function toggleDebug(): void {
 // ──────────────────────────────────────────────────────────────────────────
 
 const detachKeyboard = attachKeyboard(reset, toggleDebug);
+
+document.addEventListener("keydown", (e) => {
+  if (e.code === "ArrowLeft") {
+    if (scrubStates !== null) {
+      scrubTo(scrubIndex - 1);
+    } else if (state.phase.kind === "playing") {
+      enterScrubMode(recordedActions.length, true);
+      scrubTo(scrubIndex - 1);
+    }
+  } else if (e.code === "ArrowRight") {
+    if (scrubStates !== null) {
+      scrubTo(scrubIndex + 1);
+    } else if (state.phase.kind === "playing") {
+      enterScrubMode(recordedActions.length, true);
+    }
+  } else if (e.code === "Escape" && scrubStates !== null && scrubShowResume) {
+    exitScrubMode();
+    renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
+    updatePanels(state);
+  }
+});
+
+const wrappedDoDispatch = (action: GameAction) => {
+  if (scrubStates === null) {
+    doDispatch(action);
+  }
+};
+
 attachMouse(
   renderer.canvasElement,
   getState,
-  doDispatch,
+  wrappedDoDispatch,
   (preview) => renderer.setPreview(preview),
   (cell) => renderer.setHoveredMove(cell),
   () => renderer.currentLegalMoves,
 );
 
 updatePanels(state);
+
+// ──────────────────────────────────────────────────────────────────────────
+
+const replayPrev = document.getElementById("replay-prev");
+const replayNext = document.getElementById("replay-next");
+const replayResume = document.getElementById("replay-resume");
+
+if (replayPrev) {
+  replayPrev.addEventListener("click", () => {
+    if (scrubStates !== null) scrubTo(scrubIndex - 1);
+  });
+}
+
+if (replayNext) {
+  replayNext.addEventListener("click", () => {
+    if (scrubStates !== null) scrubTo(scrubIndex + 1);
+  });
+}
+
+if (replayResume) {
+  replayResume.addEventListener("click", () => {
+    exitScrubMode();
+    renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
+    updatePanels(state);
+  });
+}
 
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
