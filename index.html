@@ -355,9 +355,11 @@
         background: #6d441e;
         border: 1px solid #8d5e32;
         border-radius: 10px;
-        padding: 32px 36px;
-        max-width: 520px;
+        padding: 48px 56px;
+        max-width: 760px;
         width: 90vw;
+        max-height: 85vh;
+        overflow-y: auto;
         color: #f5e6d3;
         transform: translateY(0);
         transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -367,74 +369,77 @@
       }
 
       #rules-modal h1 {
-        font-size: 22px;
+        font-size: 32px;
         letter-spacing: 3px;
-        margin-bottom: 20px;
+        margin-bottom: 28px;
         color: #fdf8f0;
       }
 
       #rules-modal h2 {
-        font-size: 11px;
+        font-size: 14px;
         letter-spacing: 2px;
         text-transform: uppercase;
         color: #fdf8f0;
-        margin: 18px 0 8px;
+        margin: 24px 0 12px;
         border-bottom: 1px solid rgba(255,255,255,0.1);
-        padding-bottom: 4px;
+        padding-bottom: 6px;
+        font-weight: bold;
       }
 
       #rules-modal p, #rules-modal li {
-        font-size: 13px;
-        line-height: 1.7;
+        font-size: 16px;
+        line-height: 1.8;
         color: #e5d6c3;
       }
 
       #rules-modal ul {
-        padding-left: 18px;
+        padding-left: 24px;
       }
 
-      #rules-modal li + li { margin-top: 4px; }
+      #rules-modal li + li { margin-top: 8px; }
 
       .rules-controls {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 14px;
+        gap: 12px;
+        margin-top: 20px;
       }
 
       .rules-key {
         background: #5d3a1a;
         border: 1px solid #7d4e22;
         border-radius: 6px;
-        padding: 8px 12px;
-        font-size: 12px;
+        padding: 12px 16px;
+        font-size: 15px;
         color: #e5d6c3;
+        line-height: 1.5;
       }
 
       .rules-key span {
         display: inline-block;
         background: #7d4e22;
         border-radius: 3px;
-        padding: 1px 6px;
-        margin-right: 6px;
+        padding: 3px 8px;
+        margin-right: 8px;
         color: #fdf8f0;
-        font-size: 11px;
+        font-size: 13px;
+        font-weight: bold;
       }
 
       .rules-footer {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-top: 28px;
-        padding-top: 20px;
+        margin-top: 36px;
+        padding-top: 24px;
         border-top: 1px solid rgba(255,255,255,0.1);
       }
 
       .rules-footer label {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 12px;
+        gap: 10px;
+        font-size: 15px;
         color: #b5a48e;
         cursor: pointer;
         user-select: none;
@@ -442,8 +447,8 @@
 
       .rules-footer input[type="checkbox"] {
         accent-color: #fdf8f0;
-        width: 14px;
-        height: 14px;
+        width: 18px;
+        height: 18px;
         cursor: pointer;
       }
 
@@ -452,9 +457,9 @@
         color: #5d3a1a;
         border: none;
         border-radius: 6px;
-        padding: 10px 28px;
+        padding: 14px 36px;
         font-family: 'Courier New', monospace;
-        font-size: 13px;
+        font-size: 15px;
         font-weight: bold;
         letter-spacing: 1px;
         cursor: pointer;
