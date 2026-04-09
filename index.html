@@ -836,6 +836,9 @@
         <button id="settings-rules-btn" class="settings-action-btn">
           <span class="settings-action-icon">🛈</span>Rules
         </button>
+        <button id="settings-debug-btn" class="settings-action-btn">
+          <span class="settings-action-icon">🐞</span>Debug mode
+        </button>
       </div>
     </div>
 
@@ -908,6 +911,12 @@
       // Close settings when a difficulty is picked
       document.querySelectorAll('[data-difficulty]').forEach(btn => {
         btn.addEventListener('click', closeSettings);
+      });
+
+      // Debug toggle — dispatches a custom event that main.ts listens for
+      document.getElementById('settings-debug-btn')?.addEventListener('click', () => {
+        closeSettings();
+        document.dispatchEvent(new CustomEvent('toggle-debug'));
       });
     </script>
 

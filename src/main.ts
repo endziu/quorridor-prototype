@@ -287,6 +287,8 @@ function toggleDebug(): void {
   }
 }
 
+document.addEventListener("toggle-debug", toggleDebug);
+
 // ──────────────────────────────────────────────────────────────────────────
 
 const detachKeyboard = attachKeyboard(reset, toggleDebug);
