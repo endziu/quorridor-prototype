@@ -22,7 +22,7 @@ export class Renderer {
   private state: GameState;
   private preview: WallPreview | null = null;
   private hoveredMove: Cell | null = null;
-  private debugPaths: boolean = true;
+  private debugPaths: boolean = false;
   private rafHandle: number | null = null;
   private legalMoves: readonly Cell[] = [];
   private shortestPaths: Record<string, Cell[] | null> = { white: null, black: null };

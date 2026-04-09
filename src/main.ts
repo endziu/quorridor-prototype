@@ -62,6 +62,7 @@ function doDispatch(action: GameAction): void {
   recordedActions.push(action);
   renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
   updatePanels(state);
+  updateDebugPanel(state);
   if (state.phase.kind === "won") {
     onGameWon();
   } else if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
@@ -138,6 +139,7 @@ function reset(): void {
   renderer.resetAnimations();
   renderer.setPreview(null);
   updatePanels(state);
+  updateDebugPanel(state);
 }
 
 function enterScrubMode(index: number, showResume: boolean): void {
@@ -164,6 +166,7 @@ function resumeFromScrub(): void {
   exitScrubMode();
   renderer.setState(state, { white: currentDuo[0], black: currentDuo[1] });
   updatePanels(state);
+  updateDebugPanel(state);
   if (AI_TEAM !== null && state.phase.kind === "playing" && state.phase.activeTeam === AI_TEAM) {
     scheduleAiMove();
   }
@@ -175,6 +178,7 @@ function scrubTo(index: number): void {
   renderer.resetAnimations();
   renderer.setState(scrubStates[scrubIndex]!, { white: currentDuo[0], black: currentDuo[1] });
   updateReplayControls();
+  updateDebugPanel(scrubStates[scrubIndex]!);
 }
 
 function updateReplayControls(): void {
@@ -240,6 +244,13 @@ function updatePanels(s: GameState): void {
   }
 }
 
+function updateDebugPanel(s: GameState): void {
+  const pre = document.getElementById("debug-state-pre");
+  if (pre) {
+    pre.textContent = JSON.stringify(s, null, 2);
+  }
+}
+
 // ── Difficulty ─────────────────────────────────────────────────────────────
 
 const difficultyButtons = Array.from(document.querySelectorAll<HTMLButtonElement>("[data-difficulty]"));
@@ -269,6 +280,11 @@ if (randomizeBtn) {
 
 function toggleDebug(): void {
   renderer.toggleDebugPaths();
+  const isDebug = renderer.isDebugPaths;
+  document.body.classList.toggle("debug-active", isDebug);
+  if (isDebug) {
+    updateDebugPanel(state);
+  }
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -304,6 +320,7 @@ attachMouse(
 );
 
 updatePanels(state);
+updateDebugPanel(state);
 
 // ──────────────────────────────────────────────────────────────────────────
 
@@ -412,6 +429,7 @@ function loadReplay(game: SavedGame): void {
   updateReplayControls();
   renderer.setState(scrubStates[scrubIndex]!, { white: currentDuo[0], black: currentDuo[1] });
   updatePanels(scrubStates[scrubIndex]!);
+  updateDebugPanel(scrubStates[scrubIndex]!);
 }
 
 if (historyBtn) {
